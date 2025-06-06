@@ -10,8 +10,9 @@ import numpy as np # type: ignore
 
 # Assuming Pydantic models are accessible
 try:
-    from ..pydantic_models_v2_5 import KeyLevelV2_5
+    from pydantic_models_v2_5 import KeyLevelV2_5
 except ImportError:
+    from pydantic import BaseModel # Import BaseModel for fallback
     # Fallback placeholder if direct run or structure issue
     class KeyLevelV2_5(BaseModel): # type: ignore
         level_price: float
@@ -39,7 +40,10 @@ class KeyLevelIdentifierV2_5:
         if not hasattr(config_manager_v2_5_instance, 'get_setting'):
             self.logger.critical(f"{self.__class__.__name__} initialized with an invalid ConfigManagerV2_5. Critical failure.")
             class DummyCM:
-                def get_setting(self, *args, default_value_to_return=None, **kwargs): return default_value_to_return
+                def get_setting(self, *args, symbol_context=None, default_value_to_return=None, **kwargs):
+                    return default_value_to_return
+                def get_resolved_path_setting(self, *args, symbol_context=None, default_value_to_return=None, **kwargs):
+                    return None # Or a sensible path-like string if needed
             self.config_manager = DummyCM() # type: ignore
         else:
             self.config_manager = config_manager_v2_5_instance

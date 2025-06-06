@@ -144,8 +144,11 @@ class ConvexValueDataFetcherV2_5:
         if not hasattr(config_manager_v2_5_instance, 'get_setting') or not hasattr(config_manager_v2_5_instance, 'get_resolved_path_setting'):
             self.logger.critical(f"{self.__class__.__name__} initialized with an invalid ConfigManagerV2_5 instance. Functionality will be severely impaired.")
             class DummyConfigManager: # Fallback
-                def get_setting(self, *args, default_value_to_return=None, **kwargs): return default_value_to_return
-                def get_resolved_path_setting(self, *args, **kwargs): return None
+                def get_setting(self, *args, symbol_context=None, default_value_to_return=None, **kwargs):
+                    return default_value_to_return
+                def get_resolved_path_setting(self, *args, symbol_context=None, default_value_to_return=None, **kwargs):
+                    # Simplified: still return None for path if it's a dummy
+                    return None
             self.config_manager = DummyConfigManager() # type: ignore
         else:
             self.config_manager = config_manager_v2_5_instance

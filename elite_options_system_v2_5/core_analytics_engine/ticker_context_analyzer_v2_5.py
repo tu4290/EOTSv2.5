@@ -3,14 +3,14 @@
 
 import logging
 from datetime import datetime, date, time, timedelta
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional, List, Union, Tuple
 
 import pandas as pd # type: ignore
 # Assuming Pydantic models are in a sibling directory 'models' or accessible via project structure
 # For now, relative import if pydantic_models_v2_5.py is in elite_options_system_v2_5/
 # If it's in utils, path needs adjustment. Let's assume it's accessible one level up for now.
 try:
-    from ..pydantic_models_v2_5 import TickerContextOutputV2_5
+    from pydantic_models_v2_5 import TickerContextOutputV2_5
 except ImportError:
     # Fallback if running script directly or structure changes, use placeholder
     class TickerContextOutputV2_5(dict): # Basic Pydantic model placeholder
@@ -45,7 +45,10 @@ class TickerContextAnalyzerV2_5:
             self.logger.critical(f"{self.__class__.__name__} initialized with an invalid ConfigManagerV2_5. Critical failure.")
             # Fallback dummy config manager
             class DummyCM:
-                def get_setting(self, *args, default_value_to_return=None, **kwargs): return default_value_to_return
+                def get_setting(self, *args, symbol_context=None, default_value_to_return=None, **kwargs):
+                    return default_value_to_return
+                def get_resolved_path_setting(self, *args, symbol_context=None, default_value_to_return=None, **kwargs):
+                    return None # Or a sensible path-like string if needed
             self.config_manager = DummyCM() # type: ignore
         else:
             self.config_manager = config_manager_v2_5_instance

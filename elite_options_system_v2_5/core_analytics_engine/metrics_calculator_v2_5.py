@@ -32,7 +32,11 @@ class MetricsCalculatorV2_5:
             self.logger.critical(f"{self.__class__.__name__} initialized with an invalid ConfigManagerV2_5. Critical failure.")
             self.initialization_failed = True
             class DummyCM:
-                def get_setting(self, *args, default_value_to_return=None, **kwargs): return default_value_to_return
+                def get_setting(self, *args, symbol_context=None, default_value_to_return=None, **kwargs):
+                    return default_value_to_return
+                # Adding a dummy get_resolved_path_setting for completeness
+                def get_resolved_path_setting(self, *args, symbol_context=None, default_value_to_return=None, **kwargs):
+                    return None
             self.config_manager = DummyCM() # type: ignore
         else:
             self.config_manager = config_manager_v2_5_instance

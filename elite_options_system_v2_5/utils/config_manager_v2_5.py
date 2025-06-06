@@ -80,7 +80,7 @@ class ConfigManagerV2_5:
             raise ValueError(f"Configuration validation error: {e}")
 
 
-    def get_setting(self, *keys, symbol_context=None):
+    def get_setting(self, *keys, symbol_context=None, default_value_to_return=None): # Added default_value_to_return
         # Start with global config
         current_level_config = self.config
 
@@ -163,14 +163,19 @@ class ConfigManagerV2_5:
                 # print(f"No schema default found for '{'.'.join(keys)}'.")
                 pass
 
-            # print(f"Warning: Setting '{'.'.join(keys)}' not found.") # Final warning if no default either
-            raise KeyError(f"Setting '{'.'.join(keys)}' not found in any configuration layer and no schema default applicable/found.")
+            # If not found through any layer including schema, return the specified default
+            # print(f"Warning: Setting '{'.'.join(keys)}' not found. Returning provided default: {default_value_to_return}")
+            return default_value_to_return
 
 
-    def get_resolved_path_setting(self, *keys, symbol_context=None):
-        relative_path_str = self.get_setting(*keys, symbol_context=symbol_context)
-        # Ensure the path is resolved relative to the project root's sub-directory for the v2.5 system
-        # This assumes paths in config are relative to the 'elite_options_system_v2_5' directory itself.
+    def get_resolved_path_setting(self, *keys, symbol_context=None, default_value_to_return=None): # Added default
+        relative_path_str = self.get_setting(*keys, symbol_context=symbol_context, default_value_to_return=default_value_to_return)
+        if relative_path_str is None: # If get_setting returned None (its default or provided default)
+            return None # Propagate None if path string is None
+    def get_resolved_path_setting(self, *keys, symbol_context=None, default_value_to_return=None):
+        relative_path_str = self.get_setting(*keys, symbol_context=symbol_context, default_value_to_return=default_value_to_return)
+        if relative_path_str is None:
+            return None
         base_path_for_relative_paths = self.project_root / 'elite_options_system_v2_5'
         return (base_path_for_relative_paths / relative_path_str).resolve()
 

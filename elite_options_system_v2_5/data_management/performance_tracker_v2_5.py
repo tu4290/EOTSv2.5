@@ -27,8 +27,9 @@ class PerformanceTrackerV2_5:
             # Fallback dummy config manager
             class DummyConfigManager:
                 _project_root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                def get_setting(self, *args, default_value_to_return: Any = None, **kwargs): return default_value_to_return
-                def get_resolved_path_setting(self, *args, default_value_to_return: Optional[str] = None, **kwargs) -> Optional[str]:
+                def get_setting(self, *args, symbol_context=None, default_value_to_return: Any = None, **kwargs):
+                    return default_value_to_return
+                def get_resolved_path_setting(self, *args, symbol_context=None, default_value_to_return: Optional[str] = None, **kwargs) -> Optional[str]:
                     path_key = args[-1] if args and isinstance(args[-1], str) else "default_path"
                     relative_path = default_value_to_return if default_value_to_return else f"data_cache/fallback_perf_tracker_v2_5/{path_key}"
                     return os.path.join(self._project_root_path, relative_path)

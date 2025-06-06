@@ -261,7 +261,7 @@ class ProcessedDataBundleV2_5(EOTSBaseModel): # Output from InitialProcessor (co
 
     # Optional: Store the input to metrics calculator for debugging/reference
     options_df_input_to_metrics_calc_obj_ref: Optional[List[Dict[str, Any]]] = Field(None, alias="optionsDfInputRef") # Or specific model
-    underlying_data_input_to_metrics_calc_obj_ref: Optional[Dict[str, Any]]] = Field(None, alias="underlyingDataInputRef")
+    underlying_data_input_to_metrics_calc_obj_ref: Optional[Dict[str, Any]] = Field(None, alias="underlyingDataInputRef")
 
 
 # --- Models for Downstream Components (SignalGen, KeyLevels, ATIF, TPO) ---

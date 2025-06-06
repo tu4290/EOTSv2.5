@@ -23,7 +23,10 @@ class MarketRegimeEngineV2_5:
         if not hasattr(config_manager_v2_5_instance, 'get_setting'):
             self.logger.critical(f"{self.__class__.__name__} initialized with an invalid ConfigManagerV2_5. Critical failure.")
             class DummyCM:
-                def get_setting(self, *args, default_value_to_return=None, **kwargs): return default_value_to_return
+                def get_setting(self, *args, symbol_context=None, default_value_to_return=None, **kwargs):
+                    return default_value_to_return
+                def get_resolved_path_setting(self, *args, symbol_context=None, default_value_to_return=None, **kwargs):
+                    return None # Or a sensible path-like string if needed
             self.config_manager = DummyCM() # type: ignore
         else:
             self.config_manager = config_manager_v2_5_instance
