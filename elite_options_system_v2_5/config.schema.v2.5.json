@@ -1,0 +1,79 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "EOTS v2.5 Configuration Schema",
+    "description": "Schema for validating the EOTS v2.5 configuration file (config_v2_5.json)",
+    "type": "object",
+    "properties": {
+        "system_settings": {
+            "type": "object",
+            "properties": {
+                "default_symbol": {"type": "string", "default": "SPY"},
+                "log_level": {"type": "string", "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], "default": "INFO"},
+                "metrics_for_dynamic_threshold_distribution_tracking": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "default": []
+                },
+                "new_setting_with_default": {"type": "integer", "default": 100}
+            },
+            "required": ["default_symbol"]
+        },
+        "data_fetcher_settings": {
+            "type": "object",
+            "properties": {
+                "convexvalue_api_key": {"type": "string"},
+                "tradier_api_key": {"type": "string"},
+                "max_retries": {"type": "integer", "default": 3},
+                "retry_delay_seconds": {"type": "integer", "default": 5}
+            },
+            "required": ["convexvalue_api_key", "tradier_api_key"]
+        },
+        "paths": {
+            "type": "object",
+            "properties": {
+                "data_cache_root_dir": {"type": "string", "default": "data_cache"},
+                "performance_data_store_dir": {"type": "string", "default": "data_cache/performance_data_store"},
+                "historical_data_store_dir": {"type": "string", "default": "data_cache/historical_data_store"},
+                "log_file_path": {"type": "string", "default": "logs/eots_v2_5.log"}
+            }
+        },
+        "symbol_specific_overrides": {
+            "type": "object",
+            "description": "Allows overriding global settings for specific symbols or a DEFAULT profile.",
+            "patternProperties": {
+                "^[A-Z0-9_]+$": {
+                    "type": "object",
+                    "description": "Overrides for a specific symbol or the DEFAULT profile.",
+                    "properties": {
+                        "log_level": {"type": "string", "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]}
+                    },
+                    "additionalProperties": true
+                }
+            }
+        },
+        "adaptive_metric_params": {"type": "object", "default": {}, "description": "Parameters for Tier 2 Adaptive Metrics"},
+        "enhanced_flow_metric_settings": {"type": "object", "default": {}, "description": "Parameters for Tier 3 Enhanced Rolling Flow Metrics"},
+        "adaptive_trade_idea_framework_settings": {
+            "type": "object",
+            "default": {"min_conviction_to_initiate_trade": 3.0},
+            "properties": {
+                 "min_conviction_to_initiate_trade": {"type": "number", "default": 3.0}
+            },
+            "description": "Parameters for the ATIF"
+        },
+        "ticker_context_analyzer_settings": {"type": "object", "default": {}, "description": "Parameters for the Ticker Context Analyzer"},
+        "market_regime_engine_settings": {
+            "type": "object",
+            "default": {"default_regime": "REGIME_UNDEFINED"},
+            "properties": {
+                "default_regime": {"type": "string", "default": "REGIME_UNDEFINED"}
+            },
+            "description": "Parameters for the Market Regime Engine"
+        },
+        "key_level_identifier_settings": {"type": "object", "default": {}, "description": "Parameters for the Key Level Identifier"},
+        "signal_generator_settings": {"type": "object", "default": {}, "description": "Parameters for the Signal Generator"},
+        "trade_parameter_optimizer_settings": {"type": "object", "default": {}, "description": "Parameters for the Trade Parameter Optimizer"},
+        "heatmap_generation_settings": {"type": "object", "default": {}, "description": "Parameters for Enhanced Heatmap data generation"}
+    },
+    "required": ["system_settings", "data_fetcher_settings", "paths"]
+}

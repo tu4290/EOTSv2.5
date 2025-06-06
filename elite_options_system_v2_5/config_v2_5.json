@@ -1,0 +1,10 @@
+{
+    "system_settings": {
+        "default_symbol": "SPY"
+    },
+    "data_fetcher_settings": {
+        "convexvalue_api_key": "YOUR_MINIMAL_CV_KEY",
+        "tradier_api_key": "YOUR_MINIMAL_TRADIER_KEY"
+    },
+    "paths": {}
+}
