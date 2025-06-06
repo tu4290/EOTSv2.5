@@ -1,0 +1,85 @@
+/* dashboard_v2/assets/styles.css */
+
+/* General Blurb Styling */
+.metric-blurb {
+    font-size: 0.9em;
+    line-height: 1.6;
+    /* color: #c0c0c0; /* Example text color for dark themes */
+    padding: 10px 15px; /* Adjust padding as needed */
+    text-align: left; /* Ensure text is left-aligned */
+}
+
+.metric-blurb h3 {
+    font-size: 1.15em; /* Slightly smaller than default h3 */
+    /* color: #e0e0e0; */
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.metric-blurb strong {
+    /* color: #d0d0d0; */
+    font-weight: 600; /* Standard bold */
+}
+
+.metric-blurb ul {
+    padding-left: 20px; /* Standard indent for lists */
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.metric-blurb li {
+    margin-bottom: 4px; /* Space between list items */
+}
+
+/* Styling for config path references within blurbs */
+.config-ref {
+    font-family: 'Consolas', 'Courier New', Courier, monospace; /* Monospace font */
+    background-color: rgba(128, 128, 128, 0.2); /* Subtle background */
+    color: #90ee90; /* Light green, or another color that stands out on your theme */
+    padding: 1px 5px; /* Small padding */
+    border-radius: 3px; /* Rounded corners */
+    font-size: 0.9em;   /* Slightly smaller */
+    border: 1px solid rgba(128, 128, 128, 0.3); /* Subtle border */
+}
+
+/* Styling for dcc.Markdown content within the accordion item, if needed */
+.blurb-markdown-content p {
+    margin-bottom: 0.5rem; /* Adjust paragraph spacing if too much/little */
+}
+
+/* Optional: Style the accordion button (header) */
+.accordion-button {
+  padding: 0.5rem 1rem; /* Adjust padding of the accordion header */
+  font-size: 0.95rem; /* Adjust font size of the accordion header title */
+}
+
+/* Optional: Ensure accordion body has enough padding when open */
+.accordion-body {
+  padding: 1rem 1.25rem; /* Default Bootstrap padding, adjust if necessary */
+}
+
+/* Chart Card Styling */
+.chart-card-wrapper {
+    height: 100%; /* Useful for consistent card heights in a row */
+}
+.chart-graph-obj {
+    /* Styles for the dcc.Graph component itself, if needed */
+}
+.control-label {
+    /* Styles for labels in the control panel */
+}
+.control-slider {
+    /* Specific styles for the dcc.Slider in controls */
+}
+.control-panel-card {
+    /* Styles for the main control panel card */
+}
+.status-bar-default-style {
+    /* Default styles for the status bar before any message */
+}
+.chart-layout-container {
+    /* Styles for the main container holding all chart rows */
+}
+.main-app-container {
+    /* Styles for the absolute top-level dbc.Container */
+}

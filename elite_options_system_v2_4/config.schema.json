@@ -1,0 +1,1949 @@
+{
+    "version": "2.4.2-TradierIntegration",
+    "system_settings": {
+        "type": "object",
+        "properties": {
+            "log_level": {
+                "type": "string",
+                "default": "INFO",
+                "enum": [
+                    "DEBUG",
+                    "INFO",
+                    "WARNING",
+                    "ERROR",
+                    "CRITICAL"
+                ]
+            },
+            "log_level_orchestrator": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "default": "INFO",
+                "enum": [
+                    "DEBUG",
+                    "INFO",
+                    "WARNING",
+                    "ERROR",
+                    "CRITICAL",
+                    null
+                ]
+            },
+            "logging_settings": {
+                "type": "object",
+                "properties": {
+                    "tradier_fetcher_log_level": {
+                        "type": "string",
+                        "default": "INFO",
+                        "enum": [
+                            "DEBUG",
+                            "INFO",
+                            "WARNING",
+                            "ERROR",
+                            "CRITICAL"
+                        ]
+                    }
+                },
+                "default": {
+                    "tradier_fetcher_log_level": "INFO"
+                }
+            },
+            "historical_data_manager_activation": {
+                "type": "object",
+                "description": "Toggles for enabling/disabling specific functionalities of HistoricalDataManager.",
+                "properties": {
+                    "enable_ohlcv_storage": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "enable_ohlcv_retrieval": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "enable_metric_storage": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "enable_metric_retrieval": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "enable_average_iv_retrieval": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "default": {
+                    "enable_ohlcv_storage": true,
+                    "enable_ohlcv_retrieval": true,
+                    "enable_metric_storage": true,
+                    "enable_metric_retrieval": true,
+                    "enable_average_iv_retrieval": true
+                }
+            },
+            "metric_calculation_phases_activation": {
+                "type": "object",
+                "description": "Toggles for enabling/disabling metric calculation phases and specific metrics. True to enable, False to disable.",
+                "properties": {
+                    "run_metric_orchestration": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Master toggle for the entire metric orchestration process."
+                    },
+                    "utility_calculate_atr": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Toggle for ATR calculation utility."
+                    },
+                    "utility_calculate_dte": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Toggle for DTE calculation utility."
+                    },
+                    "ensure_ohlcv_fallbacks": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Toggle for ensuring OHLCV fallback logic."
+                    },
+                    "core_structural_metrics": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Phase toggle for core structural metrics (DAG, TDPI, VRI-Sensitivity)."
+                    },
+                    "calculate_dag_custom": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Specific toggle for DAG_Custom calculation."
+                    },
+                    "calculate_tdpi_suite": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Specific toggle for TDPI suite (TDPI, CTR, TDFI)."
+                    },
+                    "calculate_vri_sensitivity_suite": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Specific toggle for VRI-Sensitivity suite."
+                    },
+                    "calculate_sgxoi": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Specific toggle for SGXOI calculation (used if use_skew_adjusted_for_sdag is true)."
+                    },
+                    "sdag_methodologies": {
+                        "type": "object",
+                        "description": "Toggles for SDAG methodologies phase and individual methods.",
+                        "properties": {
+                            "enabled_phase": {
+                                "type": "boolean",
+                                "default": true,
+                                "description": "Master toggle for the entire SDAG calculation phase."
+                            },
+                            "calculate_multiplicative": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "calculate_directional": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "calculate_weighted": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "calculate_volatility_focused": {
+                                "type": "boolean",
+                                "default": true
+                            }
+                        },
+                        "default": {
+                            "enabled_phase": true,
+                            "calculate_multiplicative": true,
+                            "calculate_directional": true,
+                            "calculate_weighted": true,
+                            "calculate_volatility_focused": true
+                        }
+                    },
+                    "0dte_suite": {
+                        "type": "object",
+                        "description": "Toggles for 0DTE specific metrics phase and individual metrics.",
+                        "properties": {
+                            "enabled_phase": {
+                                "type": "boolean",
+                                "default": true,
+                                "description": "Master toggle for the 0DTE suite calculation phase."
+                            },
+                            "calculate_vri_0dte": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "calculate_vvr_0dte": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "calculate_vfi_0dte": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "calculate_vci_0dte_contracts": {
+                                "type": "boolean",
+                                "default": true
+                            }
+                        },
+                        "default": {
+                            "enabled_phase": true,
+                            "calculate_vri_0dte": true,
+                            "calculate_vvr_0dte": true,
+                            "calculate_vfi_0dte": true,
+                            "calculate_vci_0dte_contracts": true
+                        }
+                    },
+                    "flow_metrics_nvp_arfi": {
+                        "type": "object",
+                        "description": "Toggles for strike-level flow metrics NVP and ARFI.",
+                        "properties": {
+                            "enabled_phase": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "calculate_nvp_strike": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "calculate_arfi_strike": {
+                                "type": "boolean",
+                                "default": true
+                            }
+                        },
+                        "default": {
+                            "enabled_phase": true,
+                            "calculate_nvp_strike": true,
+                            "calculate_arfi_strike": true
+                        }
+                    },
+                    "mspi_suite_calculation": {
+                        "type": "object",
+                        "description": "Toggles for the MSPI suite (weights, MSPI, SAI, SSI).",
+                        "properties": {
+                            "enabled_phase": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "calculate_mspi_weights": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "calculate_mspi_sai_ssi": {
+                                "type": "boolean",
+                                "default": true
+                            }
+                        },
+                        "default": {
+                            "enabled_phase": true,
+                            "calculate_mspi_weights": true,
+                            "calculate_mspi_sai_ssi": true
+                        }
+                    },
+                    "calculate_all_underlying_aggregates": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Master toggle for all underlying aggregate calculations."
+                    },
+                    "aggregate_rolling_flows": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "aggregate_net_cust_greek_flows": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "aggregate_specialized_flow_ratios": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "dealer_positioning_metrics": {
+                        "type": "object",
+                        "description": "Toggles for dealer positioning metrics (GIB, tdGIB, HP_EOD).",
+                        "properties": {
+                            "enabled_phase": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "aggregate_gib_oi": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "aggregate_td_gib": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "aggregate_hp_eod": {
+                                "type": "boolean",
+                                "default": true
+                            }
+                        },
+                        "default": {
+                            "enabled_phase": true,
+                            "aggregate_gib_oi": true,
+                            "aggregate_td_gib": true,
+                            "aggregate_hp_eod": true
+                        }
+                    },
+                    "vci_0dte_aggregation": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Toggle for final VCI_0DTE aggregation at underlying level."
+                    },
+                    "aggregate_strike_metrics_to_und": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Toggle for aggregating strike-level metrics (like MSPI sums/means) to the underlying level."
+                    }
+                },
+                "default": {
+                    "run_metric_orchestration": true,
+                    "utility_calculate_atr": true,
+                    "utility_calculate_dte": true,
+                    "ensure_ohlcv_fallbacks": true,
+                    "core_structural_metrics": true,
+                    "calculate_dag_custom": true,
+                    "calculate_tdpi_suite": true,
+                    "calculate_vri_sensitivity_suite": true,
+                    "calculate_sgxoi": true,
+                    "sdag_methodologies": {
+                        "enabled_phase": true,
+                        "calculate_multiplicative": true,
+                        "calculate_directional": true,
+                        "calculate_weighted": true,
+                        "calculate_volatility_focused": true
+                    },
+                    "0dte_suite": {
+                        "enabled_phase": true,
+                        "calculate_vri_0dte": true,
+                        "calculate_vvr_0dte": true,
+                        "calculate_vfi_0dte": true,
+                        "calculate_vci_0dte_contracts": true
+                    },
+                    "flow_metrics_nvp_arfi": {
+                        "enabled_phase": true,
+                        "calculate_nvp_strike": true,
+                        "calculate_arfi_strike": true
+                    },
+                    "mspi_suite_calculation": {
+                        "enabled_phase": true,
+                        "calculate_mspi_weights": true,
+                        "calculate_mspi_sai_ssi": true
+                    },
+                    "calculate_all_underlying_aggregates": true,
+                    "aggregate_rolling_flows": true,
+                    "aggregate_net_cust_greek_flows": true,
+                    "aggregate_specialized_flow_ratios": true,
+                    "dealer_positioning_metrics": {
+                        "enabled_phase": true,
+                        "aggregate_gib_oi": true,
+                        "aggregate_td_gib": true,
+                        "aggregate_hp_eod": true
+                    },
+                    "vci_0dte_aggregation": true,
+                    "aggregate_strike_metrics_to_und": true
+                }
+            },
+            "dashboard_debug_mode": {
+                "type": "boolean",
+                "default": true
+            },
+            "dashboard_host": {
+                "type": "string",
+                "default": "0.0.0.0"
+            },
+            "dashboard_port": {
+                "type": "integer",
+                "default": 8050
+            },
+            "dashboard_cache_timeout_seconds": 120,
+            "dashboard_max_cache_items": 50,
+            "data_directory": "data_output/processed_by_processor_v2_4",
+            "vol_trend_history_days": 20,
+            "metric_history_days_for_dynamic_thresholds": 60,
+            "min_days_for_dynamic_threshold_activation": 10,
+            "df_history_maxlen": 20,
+            "metrics_for_dynamic_threshold_distribution_tracking": [
+                "ssi_agg_und_avg",
+                "vri_sensitivity_und_avg",
+                "tdpi_und_sum_abs",
+                "arfi_overall_und_avg",
+                "vri_0dte_und_sum_abs",
+                "vfi_0dte_und_sum",
+                "NetValueFlow_5m_Und_abs",
+                "NetValueFlow_15m_Und_abs",
+                "NetValueFlow_30m_Und_abs",
+                "NetValueFlow_60m_Und_abs",
+                "vci_0dte_agg",
+                "HP_EOD_Und_abs",
+                "GIB_OI_based_Und",
+                "td_gib_dollar_Und",
+                "tdpi_atm_strike_abs",
+                "mspi_agg_und_mean",
+                "NetCustDeltaFlow_Und_abs",
+                "NetCustGammaFlow_Und_abs",
+                "vflowratio_calc_mcal"
+            ],
+            "signal_activation": {
+                "directional": true,
+                "volatility_expansion": true,
+                "volatility_contraction": true,
+                "time_decay_pin_risk": true,
+                "time_decay_charm_cascade": true,
+                "complex_structure_change": true,
+                "complex_flow_divergence": true,
+                "sdag_conviction": true,
+                "eod_hedging_pressure": true,
+                "vanna_cascade_alert": true,
+                "volatility_skew_shift_alert": true,
+                "bubble_warning_signal": true,
+                "rolling_flow_momentum_signal": true,
+                "unusual_customer_greek_flow_signal": true
+            }
+        },
+        "runner_settings": {
+            "dashboard_module_path": "dashboard_application.app_main",
+            "dashboard_app_object_name": "app",
+            "dashboard_server_object_name": "server",
+            "dashboard_package_name": "dashboard_application",
+            "dashboard_init_deps_function_name": "initialize_dashboard_dependencies",
+            "dashboard_cleanup_function_name": "cleanup_app_resources",
+            "its_orchestrator_module_path": "core_analytics_engine.its_orchestrator",
+            "its_orchestrator_class_name": "IntegratedTradingSystemV2_4",
+            "metrics_calculator_module_path": "core_analytics_engine.metrics_calculator",
+            "metrics_calculator_class_name": "MetricsCalculatorV2_4",
+            "market_regime_engine_module_path": "core_analytics_engine.market_regime_engine",
+            "market_regime_engine_class_name": "MarketRegimeEngineV2_4_Superior",
+            "signal_generator_module_path": "core_analytics_engine.signal_generator",
+            "signal_generator_class_name": "SignalGeneratorV2_4",
+            "recommendation_logic_module_path": "core_analytics_engine.recommendation_logic",
+            "recommendation_logic_class_name": "RecommendationGeneratorV2_4",
+            "trade_parameter_optimizer_module_path": "core_analytics_engine.trade_parameter_optimizer",
+            "trade_parameter_optimizer_class_name": "TradeParameterOptimizerV2_4",
+            "historical_manager_module_path": "data_management.historical_data_manager",
+            "historical_manager_class_name": "HistoricalDataManagerV2_4",
+            "data_fetcher_module_path": "data_management.fetcher",
+            "data_fetcher_class_name": "DataFetcherV2_4",
+            "initial_processor_module_path": "data_management.initial_processor",
+            "initial_processor_class_name": "InitialDataProcessorV2_4",
+            "tradier_data_fetcher_module_path": "data_management.tradier_data_fetcher",
+            "tradier_data_fetcher_class_name": "TradierDataFetcher",
+            "paths": {
+                "raw_data_cache": "data_output/raw_data_cache",
+                "processed_data_cache": "data_output/processed_data_cache",
+                "historical_ohlc_store": "data_output/historical_ohlc_data",
+                "historical_metric_store": "data_output/historical_metric_data",
+                "output_visualizations_v2_4": "output_visualizations_v2_4",
+                "assets_folder_dashboard": "dashboard_application/assets"
+            }
+        },
+        "api_credentials": {
+            "email_env_var": "CONVEX_EMAIL",
+            "password_env_var": "CONVEX_PASSWORD",
+            "environment": "pro"
+        },
+        "tradier_api_settings": {
+            "base_url": "https://api.tradier.com/v1/",
+            "access_token_env_var": "TRADIER_PRODUCTION_TOKEN",
+            "request_timeout_seconds": 20,
+            "ohlcv_default_days_back": 35,
+            "retry_config": {
+                "max_retries": 3,
+                "base_delay_seconds": 1,
+                "max_delay_seconds": 10,
+                "jitter": true
+            }
+        },
+        "data_fetcher_settings": {
+            "api_timeout_seconds": 60,
+            "max_retries": 3,
+            "base_retry_delay_seconds": 2,
+            "max_retry_delay_seconds": 20,
+            "inter_call_delay_seconds": 0.3,
+            "default_dte_range": [
+                0,
+                1,
+                2,
+                3,
+                7,
+                14,
+                21,
+                30,
+                45,
+                60,
+                90
+            ],
+            "default_price_range_pct": 0.1,
+            "cache_expiry_seconds": {
+                "options_data": 60,
+                "underlying_data": 120,
+                "historical_underlying_ohlc": 86400
+            }
+        },
+        "data_processor_settings": {
+            "weights": {
+                "selection_logic": "regime_then_time_based",
+                "regime_specific_weights_enabled": true,
+                "default_fallback_weights": {
+                    "dag_custom_norm": 0.3,
+                    "tdpi_norm": 0.25,
+                    "vri_sensitivity_norm": 0.2,
+                    "arfi_strike_norm": 0.1,
+                    "sdag_directional_norm": 0.05,
+                    "vri_0dte_norm": 0.05,
+                    "vfi_0dte_norm": 0.05
+                },
+                "regime_weights": {
+                    "REGIME_STABLE_POSITIVE_GAMMA_MEAN_REVERSION": {
+                        "dag_custom_norm": 0.3,
+                        "tdpi_norm": 0.3,
+                        "vri_sensitivity_norm": 0.1,
+                        "sdag_weighted_norm": 0.2,
+                        "arfi_strike_norm": 0.1
+                    },
+                    "REGIME_EXTREME_NEG_GIB_TRENDING_DOWN": {
+                        "dag_custom_norm": 0.4,
+                        "tdpi_norm": 0.1,
+                        "vri_sensitivity_norm": 0.1,
+                        "sdag_directional_norm": 0.2,
+                        "arfi_strike_norm": 0.1,
+                        "NetValueFlow_15m_Und_norm_mspi": 0.1
+                    },
+                    "REGIME_EXTREME_NEG_GIB_TRENDING_UP": {
+                        "dag_custom_norm": 0.4,
+                        "tdpi_norm": 0.1,
+                        "vri_sensitivity_norm": 0.1,
+                        "sdag_directional_norm": 0.2,
+                        "arfi_strike_norm": 0.1,
+                        "NetValueFlow_15m_Und_norm_mspi": 0.1
+                    },
+                    "REGIME_VOL_EXPANSION_IMMINENT_VRI0DTE_BULLISH": {
+                        "vri_0dte_norm": 0.35,
+                        "vfi_0dte_norm": 0.25,
+                        "vri_sensitivity_norm": 0.2,
+                        "sdag_volatility_focused_norm": 0.1,
+                        "dag_custom_norm": 0.1
+                    },
+                    "REGIME_VOL_EXPANSION_IMMINENT_VRI0DTE_BEARISH": {
+                        "vri_0dte_norm": 0.35,
+                        "vfi_0dte_norm": 0.25,
+                        "vri_sensitivity_norm": 0.2,
+                        "sdag_volatility_focused_norm": 0.1,
+                        "dag_custom_norm": 0.1
+                    },
+                    "REGIME_FINAL_HOUR_PINNING_HIGH_VCI": {
+                        "tdpi_norm": 0.4,
+                        "vci_0dte_agg_norm": 0.3,
+                        "dag_custom_norm": 0.15,
+                        "sdag_weighted_norm": 0.15
+                    },
+                    "REGIME_UNCLEAR_LOW_CONVICTION": {
+                        "dag_custom_norm": 0.2,
+                        "tdpi_norm": 0.15,
+                        "vri_sensitivity_norm": 0.15,
+                        "arfi_strike_norm": 0.1,
+                        "sdag_multiplicative_norm": 0.1,
+                        "sdag_directional_norm": 0.1,
+                        "sdag_weighted_norm": 0.1,
+                        "sdag_volatility_focused_norm": 0.1
+                    }
+                },
+                "time_based": {
+                    "morning": {
+                        "dag_custom_norm": 0.35,
+                        "tdpi_norm": 0.15,
+                        "vri_sensitivity_norm": 0.2,
+                        "sdag_multiplicative_norm": 0.1,
+                        "arfi_strike_norm": 0.1,
+                        "NetValueFlow_15m_Und_norm_mspi": 0.1
+                    },
+                    "midday": {
+                        "dag_custom_norm": 0.3,
+                        "tdpi_norm": 0.25,
+                        "vri_sensitivity_norm": 0.2,
+                        "sdag_weighted_norm": 0.15,
+                        "arfi_strike_norm": 0.1
+                    },
+                    "final_hour": {
+                        "dag_custom_norm": 0.15,
+                        "tdpi_norm": 0.35,
+                        "vri_sensitivity_norm": 0.1,
+                        "vci_0dte_agg_norm": 0.15,
+                        "sdag_weighted_norm": 0.1,
+                        "HP_EOD_Und_norm_mspi": 0.15
+                    }
+                },
+                "volatility_based": {
+                    "iv_percentile_threshold": 50,
+                    "low_iv": {
+                        "dag_custom_norm": 0.4,
+                        "tdpi_norm": 0.25,
+                        "vri_sensitivity_norm": 0.1,
+                        "sdag_weighted_norm": 0.15,
+                        "arfi_strike_norm": 0.1
+                    },
+                    "high_iv": {
+                        "dag_custom_norm": 0.2,
+                        "tdpi_norm": 0.15,
+                        "vri_sensitivity_norm": 0.3,
+                        "sdag_volatility_focused_norm": 0.15,
+                        "vri_0dte_norm": 0.1,
+                        "vfi_0dte_norm": 0.1
+                    }
+                }
+            },
+            "coefficients": {
+                "dag_alpha": {
+                    "aligned": 1.35,
+                    "opposed": 0.65,
+                    "neutral": 1
+                },
+                "tdpi_beta": {
+                    "aligned": 1.3,
+                    "opposed": 0.7,
+                    "neutral": 1
+                },
+                "vri_gamma": {
+                    "aligned": 1.3,
+                    "opposed": 0.7,
+                    "neutral": 1
+                }
+            },
+            "factors": {
+                "tdpi_gaussian_width": -0.45,
+                "vri_vol_trend_fallback_factor": 0.95,
+                "vri_0dte_gamma_align_reinforcing": 1.5,
+                "vri_0dte_gamma_align_contradicting": 0.5,
+                "vri_0dte_vol_trend_fallback_factor_no_history": 1
+            },
+            "approximations": {
+                "tdpi_atr_fallback": {
+                    "type": "percentage_of_price",
+                    "percentage": 0.0075,
+                    "min_value": 0.02,
+                    "atr_period": 10
+                },
+                "generic_atr_period": 14
+            },
+            "iv_context_parameters": {
+                "iv_rank_col_from_und": "u_iv_rank_30d",
+                "vol_trend_avg_days_vri0dte": 5,
+                "vol_trend_avg_days_vri_sens": 20
+            },
+            "normalization_clip_percentile": 99.5
+        },
+        "strategy_settings": {
+            "strike_col_name": "strike",
+            "option_kind_col_name": "opt_kind",
+            "underlying_price_col_name": "price",
+            "contract_multiplier_col_name": "multiplier",
+            "contract_multiplier_default_value": 100,
+            "oi_col_name": "oi",
+            "option_price_col_name": "price",
+            "option_volatility_col_name": "volatility",
+            "underlying_aggregate_iv_col_name": "volatility",
+            "expiration_col_name": "expiration_days_from_epoch_calc",
+            "underlying_symbol_col_name": "underlying_symbol_calc",
+            "gamma_exposure_source_col": "gxoi",
+            "delta_exposure_source_col": "dxoi",
+            "theta_exposure_source_col": "txoi",
+            "vega_exposure_source_col": "vxoi",
+            "charm_exposure_source_col": "charmxoi",
+            "vanna_exposure_source_col": "vannaxoi",
+            "vomma_exposure_source_col": "vommaxoi",
+            "delta_flow_proxy_col": "dxvolm",
+            "gamma_flow_proxy_col": "gxvolm",
+            "theta_flow_proxy_col": "txvolm",
+            "vega_flow_proxy_col": "vxvolm",
+            "charm_flow_proxy_col": "charmxvolm",
+            "vanna_flow_proxy_col": "vannaxvolm",
+            "vomma_flow_proxy_col": "vommaxvolm",
+            "api_params_get_und": [
+                "price",
+                "volatility",
+                "day_volume",
+                "call_gxoi",
+                "put_gxoi",
+                "gammas_call_buy",
+                "gammas_call_sell",
+                "gammas_put_buy",
+                "gammas_put_sell",
+                "deltas_call_buy",
+                "deltas_call_sell",
+                "deltas_put_buy",
+                "deltas_put_sell",
+                "vegas_call_buy",
+                "vegas_call_sell",
+                "vegas_put_buy",
+                "vegas_put_sell",
+                "thetas_call_buy",
+                "thetas_call_sell",
+                "thetas_put_buy",
+                "thetas_put_sell",
+                "call_vxoi",
+                "put_vxoi",
+                "value_bs",
+                "volm_bs",
+                "deltas_buy",
+                "deltas_sell",
+                "vegas_buy",
+                "vegas_sell",
+                "thetas_buy",
+                "thetas_sell",
+                "volm_call_buy",
+                "volm_put_buy",
+                "volm_call_sell",
+                "volm_put_sell",
+                "value_call_buy",
+                "value_put_buy",
+                "value_call_sell",
+                "value_put_sell",
+                "vflowratio",
+                "dxoi",
+                "gxoi",
+                "vxoi",
+                "txoi",
+                "call_dxoi",
+                "put_dxoi"
+            ],
+            "api_params_get_chain_additional": [
+                "price",
+                "volatility",
+                "multiplier",
+                "oi",
+                "delta",
+                "gamma",
+                "theta",
+                "vega",
+                "vanna",
+                "vomma",
+                "charm",
+                "dxoi",
+                "gxoi",
+                "vxoi",
+                "txoi",
+                "vannaxoi",
+                "vommaxoi",
+                "charmxoi",
+                "dxvolm",
+                "gxvolm",
+                "vxvolm",
+                "txvolm",
+                "vannaxvolm",
+                "vommaxvolm",
+                "charmxvolm",
+                "value_bs",
+                "volm_bs",
+                "deltas_buy",
+                "deltas_sell",
+                "gammas_buy",
+                "gammas_sell",
+                "vegas_buy",
+                "vegas_sell",
+                "thetas_buy",
+                "thetas_sell",
+                "valuebs_5m",
+                "volmbs_5m",
+                "valuebs_15m",
+                "volmbs_15m",
+                "valuebs_30m",
+                "volmbs_30m",
+                "valuebs_60m",
+                "volmbs_60m"
+            ],
+            "api_get_chain_prefix_cols": [
+                "api_temp_contract_symbol",
+                "api_temp_expiration",
+                "api_temp_strike",
+                "api_temp_opt_kind"
+            ],
+            "net_flow_cols_chain": {
+                "deltas_buy_contract": "deltas_buy",
+                "deltas_sell_contract": "deltas_sell",
+                "gammas_buy_contract": "gammas_buy",
+                "gammas_sell_contract": "gammas_sell",
+                "vegas_buy_contract": "vegas_buy",
+                "vegas_sell_contract": "vegas_sell",
+                "thetas_buy_contract": "thetas_buy",
+                "thetas_sell_contract": "thetas_sell",
+                "value_bs_contract": "value_bs",
+                "volm_bs_contract": "volm_bs",
+                "valuebs_5m_contract": "valuebs_5m",
+                "volmbs_5m_contract": "volmbs_5m",
+                "valuebs_15m_contract": "valuebs_15m",
+                "volmbs_15m_contract": "volmbs_15m",
+                "valuebs_30m_contract": "valuebs_30m",
+                "volmbs_30m_contract": "volmbs_30m",
+                "valuebs_60m_contract": "valuebs_60m",
+                "volmbs_60m_contract": "volmbs_60m",
+                "valuebs_Xm_base": "valuebs_",
+                "volmbs_Xm_base": "volmbs_"
+            },
+            "greeks_from_und": {
+                "price_und": "price",
+                "volatility_und": "volatility",
+                "multiplier_und": "multiplier",
+                "day_open_price_und": "day_open_price",
+                "day_high_price_und": "day_high_price",
+                "day_low_price_und": "day_low_price",
+                "day_close_price_und": "day_close_price",
+                "prev_day_close_price_und": "prev_day_close_price",
+                "day_volume_und": "day_volume",
+                "call_gxoi_und": "call_gxoi",
+                "put_gxoi_und": "put_gxoi",
+                "call_vxoi_und": "call_vxoi",
+                "put_vxoi_und": "put_vxoi",
+                "call_dxoi_und": "call_dxoi",
+                "put_dxoi_und": "put_dxoi",
+                "deltas_buy_und": "deltas_buy",
+                "deltas_sell_und": "deltas_sell",
+                "gammas_buy_und": "gammas_buy",
+                "gammas_sell_und": "gammas_sell",
+                "gammas_call_buy_und": "gammas_call_buy",
+                "gammas_call_sell_und": "gammas_call_sell",
+                "gammas_put_buy_und": "gammas_put_buy",
+                "gammas_put_sell_und": "gammas_put_sell",
+                "vegas_buy_und": "vegas_buy",
+                "vegas_sell_und": "vegas_sell",
+                "thetas_buy_und": "thetas_buy",
+                "thetas_sell_und": "thetas_sell",
+                "vflowratio_und": "vflowratio",
+                "flownet_und": "flownet",
+                "vflownet_und": "vflownet",
+                "volm_call_buy_und": "volm_call_buy",
+                "volm_put_sell_und": "volm_put_sell",
+                "volm_put_buy_und": "volm_put_buy",
+                "volm_call_sell_und": "volm_call_sell",
+                "value_call_buy_und": "value_call_buy",
+                "value_put_sell_und": "value_put_sell",
+                "value_put_buy_und": "value_put_buy",
+                "value_call_sell_und": "value_call_sell",
+                "value_bs_und": "value_bs",
+                "volm_bs_und": "volm_bs"
+            },
+            "skew_adjusted_gamma_source_col": "sgxoi_calc",
+            "use_skew_adjusted_for_sdag": true,
+            "thresholds": {
+                "sai_high_conviction": {
+                    "type": "fixed",
+                    "value": 0.65,
+                    "fallback_value": 0.65
+                },
+                "mspi_strength_thresh_pos": {
+                    "type": "fixed",
+                    "value": 0.5,
+                    "fallback_value": 0.5
+                },
+                "mspi_strength_thresh_neg": {
+                    "type": "fixed",
+                    "value": -0.5,
+                    "fallback_value": -0.5
+                },
+                "ssi_structure_change": {
+                    "type": "relative_percentile",
+                    "percentile": 20,
+                    "fallback_value": 0.35,
+                    "history_key": "ssi_agg_und_avg"
+                },
+                "ssi_vol_contraction": {
+                    "type": "relative_percentile",
+                    "percentile": 80,
+                    "fallback_value": 0.65,
+                    "history_key": "ssi_agg_und_avg"
+                },
+                "arfi_divergence_low_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 25,
+                    "fallback_value": 0.6,
+                    "history_key": "arfi_overall_und_avg"
+                },
+                "vol_expansion_vri_sens_trigger": {
+                    "type": "relative_percentile",
+                    "percentile": 75,
+                    "fallback_value": 0.5,
+                    "history_key": "vri_sensitivity_und_avg"
+                },
+                "vol_expansion_vfi_0dte_trigger": {
+                    "type": "relative_percentile",
+                    "percentile": 70,
+                    "fallback_value": 1.1,
+                    "history_key": "vfi_0dte_und_sum"
+                },
+                "pin_risk_tdpi_trigger": {
+                    "type": "relative_percentile",
+                    "percentile": 85,
+                    "fallback_value": 500000,
+                    "history_key": "tdpi_atm_strike_abs"
+                },
+                "pin_risk_vci_0dte_context_thresh": {
+                    "type": "fixed",
+                    "value": 0.2,
+                    "fallback_value": 0.2
+                },
+                "charm_cascade_ctr_trigger": {
+                    "type": "fixed",
+                    "value": 2.2,
+                    "fallback_value": 2.2
+                },
+                "charm_cascade_tdfi_trigger": {
+                    "type": "fixed",
+                    "value": 1.3,
+                    "fallback_value": 1.3
+                },
+                "vri0dte_expansion_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 80,
+                    "fallback_value": 0.7,
+                    "history_key": "vri_0dte_und_sum_abs",
+                    "comparison_mode": "abs_value"
+                },
+                "vri0dte_expansion_thresh_neg": {
+                    "type": "relative_percentile",
+                    "percentile": 80,
+                    "fallback_value": -0.7,
+                    "history_key": "vri_0dte_und_sum_abs",
+                    "comparison_mode": "abs_neg_value"
+                },
+                "vfi0dte_expansion_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 70,
+                    "fallback_value": 1,
+                    "history_key": "vfi_0dte_und_sum"
+                },
+                "vci_cascade_thresh": {
+                    "type": "fixed",
+                    "value": 0.3,
+                    "fallback_value": 0.3
+                },
+                "vri_roc_cascade_thresh": {
+                    "type": "relative_mean_factor",
+                    "num_std_devs": 1.5,
+                    "fallback_value": 0.15,
+                    "history_key": "vri_0dte_und_sum_abs_roc_placeholder"
+                },
+                "vvr_cascade_thresh": {
+                    "type": "fixed",
+                    "value": 1.3,
+                    "fallback_value": 1.3
+                },
+                "skew_extreme_positive_thresh": {
+                    "type": "fixed",
+                    "value": 0.15,
+                    "fallback_value": 0.15
+                },
+                "skew_extreme_negative_thresh": {
+                    "type": "fixed",
+                    "value": -0.15,
+                    "fallback_value": -0.15
+                },
+                "hp_eod_significant_neg_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 20,
+                    "fallback_value": -400000000,
+                    "history_key": "HP_EOD_Und_abs",
+                    "comparison_mode": "abs_neg_value"
+                },
+                "hp_eod_significant_pos_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 80,
+                    "fallback_value": 400000000,
+                    "history_key": "HP_EOD_Und_abs",
+                    "comparison_mode": "abs_value"
+                },
+                "bubble_arfi_low_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 15,
+                    "fallback_value": 0.4,
+                    "history_key": "arfi_overall_und_avg"
+                },
+                "bubble_ssi_low_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 15,
+                    "fallback_value": 0.4,
+                    "history_key": "ssi_agg_und_avg"
+                },
+                "rolling_value_flow_strong_abs_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 85,
+                    "fallback_value": 75000000,
+                    "history_key": "NetValueFlow_15m_Und_abs",
+                    "comparison_mode": "abs_value"
+                },
+                "rolling_value_flow_strong_abs_thresh_neg": {
+                    "type": "relative_percentile",
+                    "percentile": 85,
+                    "fallback_value": -75000000,
+                    "history_key": "NetValueFlow_15m_Und_abs",
+                    "comparison_mode": "abs_neg_value"
+                },
+                "unusual_cust_delta_flow_zscore_thresh": {
+                    "type": "fixed",
+                    "value": 2.2,
+                    "fallback_value": 2.2
+                },
+                "gib_extreme_neg_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 10,
+                    "fallback_value": -50000000000,
+                    "history_key": "GIB_OI_based_Und"
+                },
+                "gib_very_neg_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 5,
+                    "fallback_value": -70000000000,
+                    "history_key": "GIB_OI_based_Und"
+                },
+                "gib_stable_pos_thresh": {
+                    "type": "relative_percentile",
+                    "percentile": 70,
+                    "fallback_value": 20000000000,
+                    "history_key": "GIB_OI_based_Und"
+                },
+                "sdag_vf_strong_negative_threshold": {
+                    "type": "fixed",
+                    "value": -10000000000,
+                    "fallback_value": -10000000000
+                }
+            },
+            "dag_methodologies": {
+                "enabled": [
+                    "multiplicative",
+                    "directional",
+                    "weighted",
+                    "volatility_focused"
+                ],
+                "min_agreement_for_conviction_signal": 2,
+                "multiplicative": {
+                    "delta_weight_factor": 0.5
+                },
+                "directional": {
+                    "delta_weight_factor": 0.5
+                },
+                "weighted": {
+                    "enabled": true,
+                    "w1_gamma": 0.6,
+                    "w2_delta": 0.4
+                },
+                "volatility_focused": {
+                    "enabled": true,
+                    "delta_weight_factor": 0.5
+                }
+            },
+            "recommendations": {
+                "signal_to_category_mapping": {
+                    "directional_bullish": "Directional Trades",
+                    "directional_bearish": "Directional Trades",
+                    "directional_bullish_mspi": "Directional Trades",
+                    "directional_bearish_mspi": "Directional Trades",
+                    "sdag_conviction_bullish": "Directional Trades",
+                    "sdag_conviction_bearish": "Directional Trades",
+                    "vol_expansion_regime_driven": "Volatility Plays",
+                    "vol_expansion_vri_sens_driven": "Volatility Plays",
+                    "vol_expansion_regime_driven_bullish_bias": "Volatility Plays",
+                    "vol_expansion_regime_driven_bearish_bias": "Volatility Plays",
+                    "volatility_expansion": "Volatility Plays",
+                    "vol_contraction_regime_driven": "Volatility Plays",
+                    "vol_contraction_metrics_driven": "Volatility Plays",
+                    "volatility_contraction": "Volatility Plays",
+                    "time_decay_pin_risk": "Range Bound Ideas",
+                    "time_decay_charm_cascade": "Cautionary Notes",
+                    "complex_structure_change": "Cautionary Notes",
+                    "flow_divergence_bearish_warning": "Cautionary Notes",
+                    "flow_divergence_bullish_warning": "Cautionary Notes",
+                    "flow_divergence": "Cautionary Notes",
+                    "vanna_cascade_bullish": "Volatility Plays",
+                    "vanna_cascade_bearish": "Volatility Plays",
+                    "vanna_cascade_alert": "Cautionary Notes",
+                    "eod_hedging_buy": "Directional Trades",
+                    "eod_hedging_sell": "Directional Trades",
+                    "eod_hedging_pressure": "Directional Trades",
+                    "rolling_flow_bullish": "Directional Trades",
+                    "rolling_flow_bearish": "Directional Trades",
+                    "rolling_flow_momentum_signal": "Directional Trades",
+                    "vol_skew_shift_extreme_put_bias": "Cautionary Notes",
+                    "vol_skew_shift_extreme_call_bias": "Cautionary Notes",
+                    "volatility_skew_shift_alert": "Informational Alerts",
+                    "bubble_warning_metrics_confirm": "Cautionary Notes",
+                    "bubble_warning_signal": "Cautionary Notes",
+                    "unusual_delta_flow_z2.2": "Informational Alerts",
+                    "unusual_gamma_flow_z2.2": "Informational Alerts",
+                    "unusual_customer_greek_flow_signal": "Informational Alerts"
+                },
+                "min_directional_trades_stars_to_issue": 2,
+                "min_volatility_plays_stars_to_issue": 2,
+                "min_range_bound_ideas_stars_to_issue": 1,
+                "min_cautionary_notes_stars_to_issue": 1,
+                "min_informational_alerts_stars_to_issue": 1,
+                "conviction_map_high": 3.5,
+                "conviction_map_high_medium": 2.5,
+                "conviction_map_medium": 1.5,
+                "conviction_map_medium_low": 0.75,
+                "conviction_map_low": 0.25,
+                "min_reissue_time_seconds": 180,
+                "regime_specific_conviction_boosters_penalties": {
+                    "REGIME_UNCLEAR_LOW_CONVICTION": {
+                        "all_categories_penalty": -0.5
+                    },
+                    "REGIME_STRONG_BULLISH_ROLLING_FLOW": {
+                        "directional_trades_bullish_boost": 0.75,
+                        "directional_trades_bearish_penalty": -0.75
+                    },
+                    "REGIME_EXTREME_NEG_GIB_TRENDING_DOWN": {
+                        "directional_trades_bearish_boost": 1,
+                        "directional_trades_bullish_penalty": -1,
+                        "volatility_plays_expansion_boost": 0.3
+                    },
+                    "REGIME_VOL_EXPANSION_IMMINENT_VRI0DTE_BULLISH": {
+                        "volatility_plays_expansion_boost": 0.75,
+                        "directional_trades_bullish_boost": 0.25
+                    },
+                    "REGIME_FINAL_HOUR_PINNING_HIGH_VCI": {
+                        "range_bound_ideas_boost": 1,
+                        "directional_trades_penalty": -0.5
+                    }
+                },
+                "regime_signal_initial_star_boosts": {
+                    "REGIME_STRONG_BULLISH_ROLLING_FLOW": {
+                        "rolling_flow_bullish": 0.5,
+                        "directional_bullish_mspi": 0.3
+                    },
+                    "REGIME_VOL_EXPANSION_IMMINENT_VRI0DTE_BULLISH": {
+                        "vol_expansion_regime_driven": 1
+                    }
+                },
+                "conv_mod_ssi_low": -1,
+                "conv_mod_ssi_high": 0.25,
+                "conv_mod_ssi_low_thresh": 0.3,
+                "conv_mod_ssi_high_thresh": 0.7,
+                "conv_mod_vol_expansion_active": -0.5,
+                "conv_mod_vol_contraction_active": 0.25,
+                "conv_mod_sdag_align": 0.5,
+                "conv_mod_sdag_oppose": -0.75,
+                "conv_mod_positive_gib": 0.5,
+                "conv_mod_negative_gib": -0.5,
+                "conv_mod_very_negative_gib": -1,
+                "conv_mod_positive_gib_thresh": 15000000000,
+                "conv_mod_negative_gib_thresh": -15000000000,
+                "conv_mod_very_negative_gib_thresh": -60000000000,
+                "conv_mod_nvp_confirms_strike": 0.75,
+                "conv_mod_nvp_opposes_strike": -1,
+                "conv_mod_high_nvp_thresh_pos": 25000000,
+                "conv_mod_high_nvp_thresh_neg": -25000000,
+                "conv_mod_opposing_nvp_thresh_pos": 10000000,
+                "conv_mod_opposing_nvp_thresh_neg": -10000000,
+                "conv_mod_rolling_flow_confirms": 0.6,
+                "conv_mod_rolling_flow_opposes": -0.8,
+                "conv_mod_strong_rolling_flow_thresh_abs": 75000000,
+                "conv_mod_opposing_rolling_flow_factor": 0.5,
+                "conv_mod_arfi_divergence_penalty": -1.5,
+                "conv_mod_vri0dte_confirms_vol_play": 0.5,
+                "conv_mod_vri0dte_high_thresh_for_vol": 0.75,
+                "conv_mod_vci0dte_confirms_pin": 0.75,
+                "conv_mod_vci0dte_high_thresh_for_pin": 0.25,
+                "conv_mod_hp_eod_confirms": 0.4,
+                "conv_mod_hp_eod_opposes": -0.6,
+                "conv_mod_hp_eod_scale_factor": 150000000
+            },
+            "exits": {
+                "regime_shift_exit_enabled": true,
+                "contradiction_stars_threshold": 4,
+                "mspi_flip_threshold": 0.6,
+                "vanna_cascade_exit_override_enabled": true,
+                "vanna_cascade_exit_stars_thresh": 3,
+                "bubble_warning_exit_conviction_thresh": 3,
+                "profit_take_t1_active": true,
+                "profit_take_t1_sl_to_entry_plus_buffer_atr_mult": 0.1,
+                "profit_take_t2_active": true,
+                "profit_take_t2_sl_to_t1_plus_buffer_atr_mult": 0.2,
+                "regime_shift_exit_rules": {
+                    "Directional Trades.BULLISH": {
+                        "REGIME_EXTREME_NEG_GIB_TRENDING_DOWN": "EXIT_IMMEDIATE_ADVERSE_REGIME",
+                        "REGIME_VANNA_CASCADE_ALERT_BEARISH": "EXIT_IMMEDIATE_ADVERSE_REGIME"
+                    },
+                    "Directional Trades.BEARISH": {
+                        "REGIME_EXTREME_NEG_GIB_TRENDING_UP": "EXIT_IMMEDIATE_ADVERSE_REGIME",
+                        "REGIME_VANNA_CASCADE_ALERT_BULLISH": "EXIT_IMMEDIATE_ADVERSE_REGIME"
+                    },
+                    "Volatility Plays.Expansion": {
+                        "REGIME_STABLE_POSITIVE_GAMMA_MEAN_REVERSION": "EXIT_CONSIDER_PREMISE_INVALIDATED"
+                    }
+                }
+            },
+            "targets": {
+                "min_target_atr_distance_mult": 0.35,
+                "nvp_active_as_sr_source": true,
+                "nvp_sr_strength_threshold_abs_support": 30000000,
+                "nvp_sr_strength_threshold_abs_resistance": -30000000,
+                "pin_zone_active_as_sr_source": true,
+                "pin_zone_tdpi_abs_thresh": 600000,
+                "pin_zone_vci_thresh": 0.22,
+                "pin_zone_max_dte_for_sr": 1,
+                "mspi_sr_support_threshold_target": 0.5,
+                "mspi_sr_resistance_threshold_target": -0.5,
+                "target_atr_stop_loss_multiplier": 1.25,
+                "sl_trailing_buffer_atr_mult": 0.5,
+                "sl_trailing_activation_buffer_atr_mult": 1.5,
+                "target_atr_target1_multiplier_no_sr": 1.5,
+                "target_atr_target2_multiplier_no_sr": 3,
+                "target_atr_target2_multiplier_from_t1_sr": 1.25,
+                "regime_specific_target_multipliers": {
+                    "REGIME_EXTREME_NEG_GIB_TRENDING_UP": {
+                        "sl_mult": 1,
+                        "t1_mult_no_sr": 2.5,
+                        "t2_mult_no_sr": 4.5,
+                        "sl_trail_activation_mult": 1,
+                        "sl_trail_buffer_mult": 0.2
+                    },
+                    "REGIME_STABLE_POSITIVE_GAMMA_MEAN_REVERSION": {
+                        "sl_mult": 1.75,
+                        "t1_mult_no_sr": 1,
+                        "t2_mult_no_sr": 1.8,
+                        "sl_trail_activation_mult": 1.5,
+                        "sl_trail_buffer_mult": 0.4
+                    }
+                }
+            }
+        },
+        "market_regime_engine_settings": {
+            "default_regime": "REGIME_UNCLEAR_LOW_CONVICTION",
+            "near_dte_threshold_days": 1,
+            "regime_evaluation_order": [
+                "REGIME_VANNA_CASCADE_ALERT_BULLISH",
+                "REGIME_VANNA_CASCADE_ALERT_BEARISH",
+                "REGIME_EOD_HEDGING_BUY_PRESSURE",
+                "REGIME_EOD_HEDGING_SELL_PRESSURE",
+                "REGIME_FINAL_HOUR_PINNING_HIGH_VCI",
+                "REGIME_VOL_EXPANSION_IMMINENT_VRI0DTE_BULLISH",
+                "REGIME_VOL_EXPANSION_IMMINENT_VRI0DTE_BEARISH",
+                "REGIME_EXTREME_NEG_GIB_TRENDING_DOWN",
+                "REGIME_EXTREME_NEG_GIB_TRENDING_UP",
+                "REGIME_STRONG_BULLISH_ROLLING_FLOW",
+                "REGIME_STRONG_BEARISH_ROLLING_FLOW",
+                "REGIME_STABLE_POSITIVE_GAMMA_MEAN_REVERSION",
+                "REGIME_LOW_FLOW_CLARITY",
+                "REGIME_UNCLEAR_LOW_CONVICTION"
+            ],
+            "regime_rules": {
+                "REGIME_EXTREME_NEG_GIB_TRENDING_DOWN": {
+                    "GIB_OI_based_Und_lt": "dynamic_threshold:gib_extreme_neg_thresh",
+                    "NetValueFlow_30m_Und_lt": "dynamic_threshold:rolling_value_flow_strong_abs_thresh_neg",
+                    "price_vs_ema_short_pct_lt": -0.0015,
+                    "_min_conditions_to_activate": 2,
+                    "_relevant_metrics_for_min_check": [
+                        "NetValueFlow_30m_Und_lt",
+                        "arfi_overall_und_avg_lt",
+                        "price_vs_ema_short_pct_lt"
+                    ]
+                },
+                "REGIME_EXTREME_NEG_GIB_TRENDING_UP": {
+                    "GIB_OI_based_Und_lt": "dynamic_threshold:gib_extreme_neg_thresh",
+                    "NetValueFlow_30m_Und_gt": "dynamic_threshold:rolling_value_flow_strong_abs_thresh",
+                    "price_vs_ema_short_pct_gt": 0.0015,
+                    "_min_conditions_to_activate": 2,
+                    "_relevant_metrics_for_min_check": [
+                        "NetValueFlow_30m_Und_gt",
+                        "arfi_overall_und_avg_gt",
+                        "price_vs_ema_short_pct_gt"
+                    ]
+                },
+                "REGIME_FINAL_HOUR_PINNING_HIGH_VCI": {
+                    "is_0dte_eq": true,
+                    "Time_is_final_hour_eq": true,
+                    "vci_0dte_agg_gt": "config_threshold:pin_risk_vci_0dte_context_thresh",
+                    "tdpi_atm_strike_abs_gt": "config_threshold:pin_risk_tdpi_trigger"
+                },
+                "REGIME_VANNA_CASCADE_ALERT_BULLISH": {
+                    "is_0dte_eq": true,
+                    "Time_is_final_hour_eq": true,
+                    "vci_0dte_agg_gt": "config_threshold:vci_cascade_thresh",
+                    "vri_0dte_und_sum_abs_roc_placeholder_abs_gt": "config_threshold:vri_roc_cascade_thresh",
+                    "vvr_0dte_und_sum_gt": "config_threshold:vvr_cascade_thresh",
+                    "vri_0dte_und_sum_abs_roc_placeholder_sign_eq": "positive"
+                },
+                "REGIME_VANNA_CASCADE_ALERT_BEARISH": {
+                    "is_0dte_eq": true,
+                    "Time_is_final_hour_eq": true,
+                    "vci_0dte_agg_gt": "config_threshold:vci_cascade_thresh",
+                    "vri_0dte_und_sum_abs_roc_placeholder_abs_gt": "config_threshold:vri_roc_cascade_thresh",
+                    "vvr_0dte_und_sum_gt": "config_threshold:vvr_cascade_thresh",
+                    "vri_0dte_und_sum_abs_roc_placeholder_sign_eq": "negative"
+                },
+                "REGIME_EOD_HEDGING_BUY_PRESSURE": {
+                    "Time_after_eod_pressure_calc_time_eq": true,
+                    "HP_EOD_Und_lt": "config_threshold:hp_eod_significant_neg_thresh"
+                },
+                "REGIME_EOD_HEDGING_SELL_PRESSURE": {
+                    "Time_after_eod_pressure_calc_time_eq": true,
+                    "HP_EOD_Und_gt": "config_threshold:hp_eod_significant_pos_thresh"
+                },
+                "REGIME_VOL_EXPANSION_IMMINENT_VRI0DTE_BULLISH": {
+                    "vri_0dte_und_sum_abs_gt": "config_threshold:vri0dte_expansion_thresh",
+                    "vfi_0dte_und_sum_gt": "config_threshold:vfi0dte_expansion_thresh",
+                    "vri_0dte_und_sum_abs_sign_eq": "positive"
+                },
+                "REGIME_VOL_EXPANSION_IMMINENT_VRI0DTE_BEARISH": {
+                    "vri_0dte_und_sum_abs_lt": "config_threshold:vri0dte_expansion_thresh_neg",
+                    "vfi_0dte_und_sum_gt": "config_threshold:vfi0dte_expansion_thresh",
+                    "vri_0dte_und_sum_abs_sign_eq": "negative"
+                },
+                "REGIME_STRONG_BULLISH_ROLLING_FLOW": {
+                    "NetValueFlow_5m_Und_gt": "dynamic_threshold:rolling_value_flow_strong_abs_thresh_div2",
+                    "NetValueFlow_15m_Und_gt": "dynamic_threshold:rolling_value_flow_strong_abs_thresh",
+                    "NetValueFlow_30m_Und_gt": "dynamic_threshold:rolling_value_flow_strong_abs_thresh_div2",
+                    "_min_conditions_to_activate": 2,
+                    "_relevant_metrics_for_min_check": [
+                        "NetValueFlow_5m_Und_gt",
+                        "NetValueFlow_15m_Und_gt",
+                        "NetValueFlow_30m_Und_gt"
+                    ]
+                },
+                "REGIME_STRONG_BEARISH_ROLLING_FLOW": {
+                    "NetValueFlow_5m_Und_lt": "dynamic_threshold:rolling_value_flow_strong_abs_thresh_neg_div2",
+                    "NetValueFlow_15m_Und_lt": "dynamic_threshold:rolling_value_flow_strong_abs_thresh_neg",
+                    "NetValueFlow_30m_Und_lt": "dynamic_threshold:rolling_value_flow_strong_abs_thresh_neg_div2",
+                    "_min_conditions_to_activate": 2,
+                    "_relevant_metrics_for_min_check": [
+                        "NetValueFlow_5m_Und_lt",
+                        "NetValueFlow_15m_Und_lt",
+                        "NetValueFlow_30m_Und_lt"
+                    ]
+                },
+                "REGIME_STABLE_POSITIVE_GAMMA_MEAN_REVERSION": {
+                    "GIB_OI_based_Und_gt": "dynamic_threshold:gib_stable_pos_thresh",
+                    "ssi_agg_und_avg_gt": 0.65,
+                    "NetValueFlow_30m_Und_abs_lt": 40000000
+                },
+                "REGIME_LOW_FLOW_CLARITY": {
+                    "NetValueFlow_60m_Und_abs_lt": 25000000,
+                    "arfi_overall_und_avg_abs_lt": 0.45,
+                    "ssi_agg_und_avg_lt": 0.45,
+                    "_min_conditions_to_activate": 2,
+                    "_relevant_metrics_for_min_check": [
+                        "NetValueFlow_60m_Und_abs_lt",
+                        "arfi_overall_und_avg_abs_lt",
+                        "ssi_agg_und_avg_lt"
+                    ]
+                },
+                "REGIME_UNCLEAR_LOW_CONVICTION": {}
+            },
+            "dynamic_threshold_references_for_mre": {
+                "gib_extreme_neg_thresh": "GIB_OI_based_Und[PERCENTILE=10]",
+                "gib_very_neg_thresh": "GIB_OI_based_Und[PERCENTILE=5]",
+                "gib_stable_pos_thresh": "GIB_OI_based_Und[PERCENTILE=70]",
+                "rolling_value_flow_strong_abs_thresh": "NetValueFlow_15m_Und_abs[PERCENTILE=85_ABS]",
+                "rolling_value_flow_strong_abs_thresh_neg": "NetValueFlow_15m_Und_abs[PERCENTILE=85_ABS_NEG]",
+                "rolling_value_flow_strong_abs_thresh_div2": "NetValueFlow_15m_Und_abs[PERCENTILE=75_ABS]",
+                "rolling_value_flow_strong_abs_thresh_neg_div2": "NetValueFlow_15m_Und_abs[PERCENTILE=75_ABS_NEG]"
+            },
+            "time_of_day_definitions": {
+                "morning_start_time": "09:30:00",
+                "morning_end_time": "11:00:00",
+                "midday_start_time": "11:00:01",
+                "midday_end_time": "13:59:59",
+                "afternoon_start_time": "14:00:00",
+                "final_hour_start_time": "15:00:00",
+                "market_close_time": "16:00:00",
+                "eod_pressure_calc_time": "15:30:00"
+            },
+            "eod_reference_price_field": "day_open_price_und",
+            "gamma_col_for_sdag_calc": "sgxoi_calc"
+        },
+        "visualization_settings": {
+            "dashboard": {
+                "title": "EOTS V2.4 Dashboard",
+                "footer": "© 2024 EOTS Inc. V2.4",
+                "default_graph_height": 600,
+                "gauge_height": 275,
+                "table_height": 500,
+                "charts_per_row": 2,
+                "full_width_chart_ids": [
+                    "strategy_recommendations_table_display",
+                    "combined_rolling_flow_chart_viz",
+                    "mspi_heatmap_viz"
+                ],
+                "dbc_theme_name": "CYBORG",
+                "defaults": {
+                    "symbol": "SPY",
+                    "dte": "0",
+                    "range_pct": 5,
+                    "refresh_interval_ms": 0,
+                    "mode": "main"
+                },
+                "refresh_options": [
+                    {
+                        "label": "Manual",
+                        "value": 0
+                    },
+                    {
+                        "label": "5 Sec",
+                        "value": 5000
+                    },
+                    {
+                        "label": "10 Sec",
+                        "value": 10000
+                    },
+                    {
+                        "label": "15 Sec",
+                        "value": 15000
+                    },
+                    {
+                        "label": "30 Sec",
+                        "value": 30000
+                    },
+                    {
+                        "label": "1 Min",
+                        "value": 60000
+                    },
+                    {
+                        "label": "2 Min",
+                        "value": 120000
+                    }
+                ],
+                "range_slider_marks": {
+                    "1": "1%",
+                    "2": "2%",
+                    "3": "3%",
+                    "5": "5%",
+                    "10": "10%",
+                    "7.5": "7.5%"
+                },
+                "modes_detail_config": {
+                    "main": {
+                        "module_name": "main_dashboard_display",
+                        "charts": [
+                            "market_regime_indicator_display",
+                            "gib_oi_based_gauge_viz",
+                            "mspi_heatmap_viz",
+                            "nvp_strike_viz",
+                            "combined_rolling_flow_chart_viz",
+                            "vri_0dte_aggregated_viz",
+                            "key_levels_summary_viz",
+                            "strategy_recommendations_table_display"
+                        ],
+                        "label": "Main Overview"
+                    },
+                    "volatility": {
+                        "module_name": "volatility_mode_display",
+                        "charts": [
+                            "vri_sensitivity_strike_viz",
+                            "vri_0dte_strike_viz",
+                            "vvr_0dte_agg_viz",
+                            "vfi_0dte_agg_viz",
+                            "skew_factor_global_viz",
+                            "iv_term_structure_viz",
+                            "historical_iv_rank_viz"
+                        ],
+                        "label": "Volatility Deep Dive"
+                    },
+                    "flow": {
+                        "module_name": "flow_mode_display",
+                        "charts": [
+                            "net_value_heatmap_viz",
+                            "arfi_strike_viz",
+                            "net_cust_delta_flow_viz",
+                            "net_cust_gamma_flow_viz",
+                            "net_cust_vega_flow_viz",
+                            "vflowratio_viz",
+                            "granular_pcrs_viz"
+                        ],
+                        "label": "Flow Breakdown"
+                    },
+                    "structure": {
+                        "module_name": "structure_mode_display",
+                        "charts": [
+                            "mspi_components_viz",
+                            "sdag_multiplicative_viz",
+                            "sdag_directional_viz",
+                            "sdag_weighted_viz",
+                            "sdag_volatility_focused_viz",
+                            "sai_strike_viz",
+                            "ssi_strike_viz"
+                        ],
+                        "label": "Structure Analysis"
+                    },
+                    "timedecay": {
+                        "module_name": "time_decay_mode_display",
+                        "charts": [
+                            "tdpi_strike_viz",
+                            "vci_0dte_strike_viz",
+                            "ctr_strike_viz",
+                            "tdfi_strike_viz"
+                        ],
+                        "label": "Time Decay & Pinning"
+                    }
+                },
+                "styling_constants": {
+                    "COLOR_PRIMARY": "#007bff",
+                    "COLOR_SECONDARY": "#6c757d",
+                    "COLOR_SUCCESS": "#28a745",
+                    "COLOR_DANGER": "#dc3545",
+                    "COLOR_WARNING": "#ffc107",
+                    "COLOR_INFO": "#0dcaf0",
+                    "COLOR_LIGHT": "#f8f9fa",
+                    "COLOR_DARK": "#212529",
+                    "accent_color": "#FFB81C",
+                    "TEXT_PRIMARY_ON_DARK": "#E9ECEF",
+                    "TEXT_SECONDARY_ON_DARK": "#adb5bd",
+                    "TEXT_ON_LIGHT_BACKGROUND": "#212529",
+                    "BACKGROUND_COLOR_APP": "#171A21",
+                    "BACKGROUND_COLOR_CARD": "#1F2430",
+                    "BACKGROUND_COLOR_CONTROL_PANEL": "#2A303E",
+                    "BACKGROUND_COLOR_CHART_HEADER": "#343a40",
+                    "BORDER_COLOR_STANDARD": "#3E4557",
+                    "BORDER_RADIUS_STANDARD": "0.375rem",
+                    "BOX_SHADOW_STANDARD": "0 .125rem .25rem rgba(0,0,0,.075)",
+                    "STATUS_SUCCESS_COLOR": "success",
+                    "STATUS_INFO_COLOR": "info",
+                    "STATUS_WARNING_COLOR": "warning",
+                    "STATUS_ERROR_COLOR": "danger",
+                    "status_icon_map": {
+                        "success": "bi bi-check-circle-fill",
+                        "info": "bi bi-info-circle-fill",
+                        "warning": "bi bi-exclamation-triangle-fill",
+                        "danger": "bi bi-shield-fill-exclamation",
+                        "default": "bi bi-bell-fill"
+                    }
+                },
+                "styles": {
+                    "main_container": {
+                        "padding": "1rem",
+                        "fontFamily": "Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'"
+                    },
+                    "page_title": {
+                        "marginBottom": "1.5rem",
+                        "marginTop": "1rem",
+                        "fontSize": "2.5rem",
+                        "fontWeight": "300"
+                    },
+                    "main_footer": {
+                        "padding": "1.5rem 0rem",
+                        "fontSize": "0.8rem"
+                    },
+                    "control_panel": {
+                        "padding": "1rem",
+                        "marginBottom": "1.5rem"
+                    },
+                    "control_label": {
+                        "fontSize": "0.8rem",
+                        "marginBottom": "0.15rem"
+                    },
+                    "status_display": {
+                        "base": {
+                            "padding": "0.6rem 1rem",
+                            "marginBottom": "1rem",
+                            "border": "1px solid transparent",
+                            "borderRadius": "0.375rem",
+                            "textAlign": "left",
+                            "fontSize": "0.85rem",
+                            "fontWeight": "500"
+                        }
+                    },
+                    "chart_card_body": {
+                        "minHeightPx": 350
+                    },
+                    "loading_component": {
+                        "width": "100%",
+                        "height": "100%",
+                        "display": "flex",
+                        "alignItems": "center",
+                        "justifyContent": "center"
+                    }
+                },
+                "plotly_defaults": {
+                    "template": "plotly_dark",
+                    "font": {
+                        "family": "Roboto, Arial, sans-serif",
+                        "size": 11,
+                        "color": "#adb5bd"
+                    },
+                    "title": {
+                        "font_size": 15,
+                        "font_color": "#dee2e6",
+                        "x": 0.03,
+                        "pad": {
+                            "t": 25,
+                            "b": 5
+                        }
+                    },
+                    "paper_bgcolor": "#1F2430",
+                    "plot_bgcolor": "#1F2430",
+                    "xaxis": {
+                        "gridcolor": "#3E4557",
+                        "linecolor": "#555",
+                        "zerolinecolor": "#555",
+                        "showgrid": true,
+                        "gridwidth": 1,
+                        "tickfont": {
+                            "color": "#adb5bd"
+                        },
+                        "zeroline": false
+                    },
+                    "yaxis": {
+                        "gridcolor": "#3E4557",
+                        "linecolor": "#555",
+                        "zerolinecolor": "#555",
+                        "showgrid": true,
+                        "gridwidth": 1,
+                        "tickfont": {
+                            "color": "#adb5bd"
+                        },
+                        "zeroline": true
+                    },
+                    "legend": {
+                        "bgcolor": "rgba(42, 48, 62, 0.9)",
+                        "bordercolor": "#3E4557",
+                        "borderwidth": 1,
+                        "font": {
+                            "color": "#dee2e6"
+                        },
+                        "orientation": "h",
+                        "yanchor": "bottom",
+                        "y": 1.01,
+                        "xanchor": "right",
+                        "x": 1
+                    },
+                    "margin": {
+                        "l": 60,
+                        "r": 30,
+                        "t": 60,
+                        "b": 50
+                    },
+                    "modebar": {
+                        "bgcolor": "rgba(31,36,48,0.8)",
+                        "color": "#adb5bd",
+                        "activecolor": "#007bff"
+                    },
+                    "timestamp_annotation": {
+                        "x_pos": 0.99,
+                        "y_pos": -0.12,
+                        "font": {
+                            "size": 9,
+                            "color": "#7f8c8d"
+                        }
+                    },
+                    "price_line_style": {
+                        "color": "rgba(220,220,220,0.6)",
+                        "width": 1,
+                        "dash": "dot"
+                    },
+                    "price_line_annotation_font": {
+                        "size": 10
+                    },
+                    "price_line_annotation_bgcolor": "rgba(0,0,0,0.6)"
+                },
+                "chart_blurbs": {
+                    "mspi_heatmap_viz": "MSPI Heatmap: Green = Support, Red = Resistance.",
+                    "combined_rolling_flow_chart_viz": "Rolling Net Value & Volume Flows.",
+                    "nvp_strike_viz": "Net Value Pressure (NVP) by Strike.",
+                    "key_levels_summary_viz": "Key S/R Levels Summary.",
+                    "gib_oi_based_gauge_viz": "Gamma Imbalance (GIB) from Open Interest.",
+                    "vri_0dte_aggregated_viz": "0DTE Volatility Regime Indicator (Aggregate).",
+                    "strategy_recommendations_table_display": "Actionable Strategy Insights.",
+                    "market_regime_indicator_display": "Current Market Regime."
+                },
+                "status_message_error_duration_ms": null,
+                "status_message_default_duration_ms": 7000
+            },
+            "mspi_visualizer": {
+                "rolling_intervals": [
+                    "5m",
+                    "15m",
+                    "30m",
+                    "60m"
+                ],
+                "output_dir": "output_visualizations_v2_4/mspi",
+                "save_charts_as_html": false,
+                "save_charts_as_png": false,
+                "default_chart_height": 650,
+                "plotly_template": "plotly_dark",
+                "min_normalization_denominator": 1e-9,
+                "min_value_for_ratio": 0.000001,
+                "colorscales": {
+                    "mspi_heatmap": [
+                        [
+                            0,
+                            "rgb(165,0,38)"
+                        ],
+                        [
+                            0.25,
+                            "rgb(215,48,39)"
+                        ],
+                        [
+                            0.49,
+                            "rgb(250,150,150)"
+                        ],
+                        [
+                            0.5,
+                            "rgb(40,40,40)"
+                        ],
+                        [
+                            0.51,
+                            "rgb(150,150,250)"
+                        ],
+                        [
+                            0.75,
+                            "rgb(69,117,180)"
+                        ],
+                        [
+                            1,
+                            "rgb(5,48,97)"
+                        ]
+                    ],
+                    "net_value_heatmap": [
+                        [
+                            0,
+                            "rgb(200,50,50)"
+                        ],
+                        [
+                            0.5,
+                            "rgb(40,40,40)"
+                        ],
+                        [
+                            1,
+                            "rgb(50,200,50)"
+                        ]
+                    ]
+                },
+                "key_level_markers": {
+                    "Support": {
+                        "symbol": "triangle-up",
+                        "color": "lime",
+                        "name": "Support"
+                    },
+                    "Resistance": {
+                        "symbol": "triangle-down",
+                        "color": "red",
+                        "name": "Resistance"
+                    },
+                    "High Conviction": {
+                        "symbol": "diamond",
+                        "color": "gold",
+                        "name": "High Conviction"
+                    },
+                    "Structure Change": {
+                        "symbol": "cross",
+                        "color": "deepskyblue",
+                        "name": "Structure Change"
+                    },
+                    "Pin Potential": {
+                        "symbol": "star",
+                        "color": "yellow",
+                        "name": "Pin Potential"
+                    },
+                    "EOD Pressure": {
+                        "symbol": "arrow",
+                        "color": "orange",
+                        "name": "EOD Pressure"
+                    }
+                },
+                "signal_styles": {
+                    "default": {
+                        "color": "grey",
+                        "symbol": "circle"
+                    }
+                },
+                "column_names": {
+                    "strike": "strike",
+                    "option_kind": "opt_kind",
+                    "mspi": "mspi",
+                    "nvp_strike": "nvp_strike",
+                    "vri_sensitivity": "vri_sensitivity",
+                    "tdpi": "tdpi",
+                    "vci_0dte_agg": "vci_0dte_agg"
+                },
+                "hover_settings": {
+                    "show_overview_metrics_default": true,
+                    "overview_metrics_config": [
+                        {
+                            "key": "mspi",
+                            "label": "MSPI",
+                            "precision": 3
+                        },
+                        {
+                            "key": "sai",
+                            "label": "SAI",
+                            "precision": 3
+                        },
+                        {
+                            "key": "ssi_agg",
+                            "label": "SSI",
+                            "precision": 3
+                        },
+                        {
+                            "key": "arfi_strike",
+                            "label": "ARFI(S)",
+                            "precision": 3
+                        },
+                        {
+                            "key": "dag_custom",
+                            "label": "DAG",
+                            "is_currency": true,
+                            "precision": 0
+                        },
+                        {
+                            "key": "tdpi",
+                            "label": "TDPI",
+                            "is_currency": true,
+                            "precision": 0
+                        },
+                        {
+                            "key": "vri_sensitivity",
+                            "label": "VRI(S)",
+                            "is_currency": true,
+                            "precision": 0
+                        },
+                        {
+                            "key": "vri_0dte",
+                            "label": "VRI(0DTE)",
+                            "precision": 3
+                        },
+                        {
+                            "key": "GIB_OI_based_Und",
+                            "label": "GIB(OI)",
+                            "is_currency": true,
+                            "precision": 0
+                        },
+                        {
+                            "key": "nvp_strike",
+                            "label": "NVP(S)",
+                            "is_currency": true,
+                            "precision": 0
+                        }
+                    ],
+                    "details_section_keys": [
+                        "category",
+                        "bias_type",
+                        "conviction_stars_final",
+                        "status",
+                        "entry_price_at_signal",
+                        "target_1",
+                        "target_2",
+                        "stop_loss",
+                        "rationale_full",
+                        "target_rationale",
+                        "exit_reason"
+                    ]
+                },
+                "chart_specific_params": {
+                    "recommendations_table_height": 550,
+                    "component_comparison_height": 650,
+                    "key_levels_height": 650,
+                    "mspi_components_bar_colors": {
+                        "mspi": {
+                            "pos": "darkblue",
+                            "neg": "darkred"
+                        },
+                        "dag_custom_norm": {
+                            "pos": "rgb(255,215,0)",
+                            "neg": "rgb(128,0,128)"
+                        },
+                        "tdpi_norm": {
+                            "pos": "green",
+                            "neg": "red",
+                            "is_border": true
+                        },
+                        "vri_sensitivity_norm": {
+                            "pos": "cyan",
+                            "neg": "magenta"
+                        },
+                        "arfi_strike_norm": {
+                            "pos": "#B0E0E6",
+                            "neg": "#B0E0E6"
+                        },
+                        "vri_0dte_norm": {
+                            "pos": "#FF7F50",
+                            "neg": "#6495ED"
+                        },
+                        "sdag_multiplicative_norm": {
+                            "pos": "#FFA07A",
+                            "neg": "#6A5ACD"
+                        },
+                        "sdag_directional_norm": {
+                            "pos": "#FFD700",
+                            "neg": "#8A2BE2"
+                        },
+                        "sdag_weighted_norm": {
+                            "pos": "#98FB98",
+                            "neg": "#FF6347"
+                        },
+                        "sdag_volatility_focused_norm": {
+                            "pos": "#AFEEEE",
+                            "neg": "#DA70D6"
+                        }
+                    },
+                    "mspi_components_y_range": [
+                        -1.2,
+                        1.2
+                    ],
+                    "show_net_sdag_trace": true,
+                    "net_sdag_trace_default_visibility": "legendonly",
+                    "net_sdag_marker_style": {
+                        "symbol": "diamond-dot",
+                        "color": "rgba(230,230,230,0.8)",
+                        "size": 7,
+                        "line": {
+                            "color": "white",
+                            "width": 0.5
+                        }
+                    },
+                    "combined_rolling_flow_chart_barmode": "relative",
+                    "combined_flow_chart_price_range_pct": 7.5,
+                    "rolling_flow_customization": {
+                        "5m": {
+                            "volume_positive_color": "#2ca02c",
+                            "volume_negative_color": "#d62728",
+                            "value_positive_fill_color": "rgba(44, 160, 44, 0.15)",
+                            "value_negative_fill_color": "rgba(214, 39, 40, 0.15)"
+                        },
+                        "15m": {
+                            "volume_positive_color": "#98df8a",
+                            "volume_negative_color": "#ff9896",
+                            "value_positive_fill_color": "rgba(152, 223, 138, 0.15)",
+                            "value_negative_fill_color": "rgba(255, 152, 150, 0.15)"
+                        },
+                        "30m": {
+                            "volume_positive_color": "#1f77b4",
+                            "volume_negative_color": "#ff7f0e",
+                            "value_positive_fill_color": "rgba(31, 119, 180, 0.1)",
+                            "value_negative_fill_color": "rgba(255, 127, 14, 0.1)"
+                        },
+                        "60m": {
+                            "volume_positive_color": "#aec7e8",
+                            "volume_negative_color": "#ffbb78",
+                            "value_positive_fill_color": "rgba(174, 199, 232, 0.1)",
+                            "value_negative_fill_color": "rgba(255, 187, 120, 0.1)"
+                        }
+                    },
+                    "key_level_markers": {
+                        "Support": {
+                            "symbol": "triangle-up",
+                            "color": "lime"
+                        },
+                        "Resistance": {
+                            "symbol": "triangle-down",
+                            "color": "red"
+                        }
+                    }
+                }
+            }
+        },
+        "validation": {
+            "required_top_level_sections": [
+                "system_settings",
+                "runner_settings",
+                "api_credentials",
+                "tradier_api_settings",
+                "data_fetcher_settings",
+                "data_processor_settings",
+                "strategy_settings",
+                "visualization_settings",
+                "market_regime_engine_settings"
+            ],
+            "weights_sum_tolerance": 0.05
+        }
+    }
+}

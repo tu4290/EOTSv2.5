@@ -1,0 +1,83 @@
+/* /home/ubuntu/dashboard_v2/assets/custom.css */
+
+/* --- Body and General Styles ---
+body {
+    overflow-x: hidden; /* Prevent horizontal scrollbars if any component slightly overflows */
+}
+
+/* --- Dash Bootstrap Component Overrides or Enhancements ---
+
+/* Style for dbc.Button to add more visual feedback if not covered by theme */
+.dbc .btn-primary:hover,
+.dbc .btn-primary:focus {
+    /* Example: Slightly lighten or darken based on the theme */
+    /* For a dark theme like Cyborg, a slight lighten might be good */
+    /* filter: brightness(110%); */
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3); /* Example shadow for primary button */
+    transform: translateY(-1px);
+}
+
+.dbc .btn-primary:active {
+    /* filter: brightness(90%); */
+    transform: translateY(0px);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+/* Card styling enhancements */
+.card {
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    /* box-shadow: 0 8px 25px rgba(0,0,0,0.5); /* Subtle hover effect for cards */
+}
+
+/* --- Custom Styles for Info Icons and Tooltips ---
+.bi-info-circle-fill:hover {
+    color: #0dcaf0 !important; /* Example: Brighter blue on hover for info icon (adjust to theme) */
+    transform: scale(1.1);
+}
+
+/* Style for dcc.Loading overlay to be less intrusive if needed */
+/* This targets the default Dash loading component's overlay */
+._dash-loading {
+    /* background-color: rgba(50, 50, 50, 0.3) !important; */
+}
+
+/* --- Plotly Chart Customizations (if needed beyond template) ---
+/* Example: Ensure tooltips within Plotly charts are styled for dark theme if default is not sufficient */
+/* This is often handled by Plotly's own templating or direct layout updates */
+
+/* Custom scrollbar styling for webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #2c2c2c; /* Dark track */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* General class for subtle text, if Bootstrap text-muted is not enough */
+.text-subtle {
+    color: #868e96 !important; /* Bootstrap muted color, can be customized */
+    font-size: 0.85em;
+}
+
+/* Styles for AG-Grid if used (example) */
+/* .ag-theme-alpine-dark .ag-header {
+    background-color: #343a40;
+    color: #f8f9fa;
+} */
+
+
