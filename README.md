@@ -1,6 +1,6 @@
 **Comprehensive Guide to the Elite Options Trading System (Version
 2.4)**  
-**(Date: October 26, 2023)**
+
 
 **Table of Contents (V2.4 - Expanded & Detailed)**
 
