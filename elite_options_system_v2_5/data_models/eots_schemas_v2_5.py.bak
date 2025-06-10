@@ -1,0 +1,317 @@
+# elite_options_system_v2_5/data_models/eots_schemas_v2_5.py
+# Canonical Pydantic Schemas for EOTS V2.5 "Apex Predator"
+
+from pydantic import BaseModel, Field, ConfigDict
+from typing import List, Optional, Dict, Any, Union
+from datetime import datetime, date
+import uuid
+
+# --- Base Model ---
+class EOTSBaseModel(BaseModel):
+    model_config = ConfigDict(
+        extra='allow', # Allow for raw, change to 'ignore' for processed if needed
+        arbitrary_types_allowed=True,
+        populate_by_name=True,
+        validate_assignment=True
+    )
+
+# === DIRECTIVE 1.2: Canonical Raw Data Models (User Provided) ===
+class RawOptionsContractV2_5(EOTSBaseModel):
+    contract_symbol: str
+    strike: float
+    opt_kind: str
+    expiration_date: str
+    price: Optional[float] = None
+    volatility: Optional[float] = None
+    oi: Optional[int] = None
+    volm: Optional[int] = None
+    multiplier: Optional[int] = None
+    delta: Optional[float] = None
+    gamma: Optional[float] = None
+    theta: Optional[float] = None
+    vega: Optional[float] = None
+    vanna: Optional[float] = None
+    vomma: Optional[float] = None
+    charm: Optional[float] = None
+    dxoi: Optional[float] = None
+    gxoi: Optional[float] = None
+    vxoi: Optional[float] = None
+    txoi: Optional[float] = None
+    vannaxoi: Optional[float] = None
+    vommaxoi: Optional[float] = None
+    charmxoi: Optional[float] = None
+    dxvolm: Optional[float] = None
+    gxvolm: Optional[float] = None
+    vxvolm: Optional[float] = None
+    txvolm: Optional[float] = None
+    vannaxvolm: Optional[float] = None
+    vommaxvolm: Optional[float] = None
+    charmxvolm: Optional[float] = None
+    value_bs: Optional[float] = None
+    volm_bs: Optional[float] = None
+    deltas_buy: Optional[float] = None
+    deltas_sell: Optional[float] = None
+    gammas_buy: Optional[float] = None
+    gammas_sell: Optional[float] = None
+    vegas_buy: Optional[float] = None
+    vegas_sell: Optional[float] = None
+    thetas_buy: Optional[float] = None
+    thetas_sell: Optional[float] = None
+    valuebs_5m: Optional[float] = None
+    volmbs_5m: Optional[float] = None
+    valuebs_15m: Optional[float] = None
+    volmbs_15m: Optional[float] = None
+    valuebs_30m: Optional[float] = None
+    volmbs_30m: Optional[float] = None
+    valuebs_60m: Optional[float] = None
+    volmbs_60m: Optional[float] = None
+    volm_buy: Optional[int] = None
+    volm_sell: Optional[int] = None
+    value_buy: Optional[float] = None
+    value_sell: Optional[float] = None
+
+class RawUnderlyingDataV2_5(EOTSBaseModel):
+    symbol: str
+    timestamp: datetime
+    price: Optional[float] = None
+    volatility: Optional[float] = None
+    day_volume: Optional[int] = None
+    call_gxoi: Optional[float] = None
+    put_gxoi: Optional[float] = None
+    gammas_call_buy: Optional[float] = None
+    gammas_call_sell: Optional[float] = None
+    gammas_put_buy: Optional[float] = None
+    gammas_put_sell: Optional[float] = None
+    deltas_call_buy: Optional[float] = None
+    deltas_call_sell: Optional[float] = None
+    deltas_put_buy: Optional[float] = None
+    deltas_put_sell: Optional[float] = None
+    vegas_call_buy: Optional[float] = None
+    vegas_call_sell: Optional[float] = None
+    vegas_put_buy: Optional[float] = None
+    vegas_put_sell: Optional[float] = None
+    thetas_call_buy: Optional[float] = None
+    thetas_call_sell: Optional[float] = None
+    thetas_put_buy: Optional[float] = None
+    thetas_put_sell: Optional[float] = None
+    call_vxoi: Optional[float] = None
+    put_vxoi: Optional[float] = None
+    call_dxoi: Optional[float] = None
+    put_dxoi: Optional[float] = None
+    value_bs: Optional[float] = None
+    volm_bs: Optional[float] = None
+    deltas_buy: Optional[float] = None
+    deltas_sell: Optional[float] = None
+    vegas_buy: Optional[float] = None
+    vegas_sell: Optional[float] = None
+    thetas_buy: Optional[float] = None
+    thetas_sell: Optional[float] = None
+    volm_call_buy: Optional[float] = None
+    volm_put_buy: Optional[float] = None
+    volm_call_sell: Optional[float] = None
+    volm_put_sell: Optional[float] = None
+    value_call_buy: Optional[float] = None
+    value_put_buy: Optional[float] = None
+    value_call_sell: Optional[float] = None
+    value_put_sell: Optional[float] = None
+    vflowratio: Optional[float] = None
+    dxoi: Optional[float] = None
+    gxoi: Optional[float] = None
+    vxoi: Optional[float] = None
+    txoi: Optional[float] = None
+    day_open_price_und: Optional[float] = None
+    day_high_price_und: Optional[float] = None
+    day_low_price_und: Optional[float] = None
+    prev_day_close_price_und: Optional[float] = None
+
+# --- Tradier Specific Models (if TradierFetcher returns these) ---
+class TradierQuoteV2_5(EOTSBaseModel):
+    symbol: str = Field(...)
+    description: Optional[str] = None
+    last: Optional[float] = None
+    open: Optional[float] = None
+    high: Optional[float] = None
+    low: Optional[float] = None
+    close: Optional[float] = None
+    prevclose: Optional[float] = None
+    volume: Optional[int] = None
+
+class TradierOHLCVBarV2_5(EOTSBaseModel):
+    date: date
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: int
+
+# --- Bundle Models ---
+class UnprocessedDataBundleV2_5(EOTSBaseModel):
+    symbol: str = Field(...)
+    raw_options_contracts: List[RawOptionsContractV2_5] = Field(default_factory=list)
+    raw_underlying_data: RawUnderlyingDataV2_5
+    fetch_timestamp_master: datetime = Field(default_factory=datetime.now)
+    errors_cv: List[str] = Field(default_factory=list)
+    errors_tradier: List[str] = Field(default_factory=list)
+
+# --- Processed Data Models ---
+class OptionContractProcessedV2_5(RawOptionsContractV2_5):
+    underlying_price_at_fetch: Optional[float] = Field(None)
+    current_time_dt_context: Optional[datetime] = Field(None)
+    dte: Optional[float] = Field(None, description="Calculated Days To Expiration")
+
+class StrikeLevelMetricsV2_5(EOTSBaseModel):
+    symbol: str = Field(...)
+    strike: float = Field(...)
+
+class UnderlyingDataEnrichedV2_5(RawUnderlyingDataV2_5):
+    current_market_regime_v2_5: Optional[str] = Field(None)
+    ticker_context_dict_v2_5: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    resolved_dynamic_thresholds_v2_5: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    underlying_atr_value: Optional[float] = Field(None)
+
+class ProcessedDataBundleV2_5(EOTSBaseModel):
+    symbol: str = Field(...)
+    status: str = Field(...)
+    error_message: Optional[str] = Field(None)
+    timestamp_processed: datetime = Field(default_factory=datetime.now)
+    options_contracts_processed: List[OptionContractProcessedV2_5] = Field(default_factory=list)
+    strike_level_metrics_processed: List[StrikeLevelMetricsV2_5] = Field(default_factory=list)
+    underlying_data_enriched: UnderlyingDataEnrichedV2_5
+
+# --- Analytical Output & Config Models (Placeholders for now) ---
+class FinalAnalysisBundleV2_5(EOTSBaseModel): pass
+class KeyLevelV2_5(EOTSBaseModel): pass
+class SignalPayloadV2_5(EOTSBaseModel): pass
+class TickerContextOutputV2_5(EOTSBaseModel): pass
+class ATIFContextInputV2_5(EOTSBaseModel): pass
+class ATIFTradeIdeaDirectiveV2_5(EOTSBaseModel): pass
+class OptionLegDefinitionV2_5(EOTSBaseModel): pass
+class TradeRecommendationV2_5(EOTSBaseModel): pass
+class ConfigSystemSettings(EOTSBaseModel): pass
+class ConfigPaths(EOTSBaseModel): pass
+class EOTSConfigV2_5(EOTSBaseModel): pass # Master Config Model
+
+
+# --- Analytical Output Models (from KLI, SG, ATIF, TPO) ---
+
+class KeyLevelV2_5(EOTSBaseModel):
+    level_price: float = Field(...)
+    level_type: str = Field(..., description="Support, Resistance, PinZone, VolTrigger, MajorWall")
+    conviction_score: float = Field(...)
+    contributing_metrics: List[str] = Field(default_factory=list)
+    source_component: Optional[str] = Field(None, description="e.g., A-MSPI, NVP, SGDHP")
+
+class SignalPayloadV2_5(EOTSBaseModel):
+    signal_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    timestamp_generated: datetime = Field(default_factory=datetime.now)
+    symbol: str = Field(...)
+    signal_type: str = Field(..., description="e.g., AdaptiveDirectional_Bullish, VAPI_FA_Surge_Bearish")
+    base_score: float = Field(..., description="Initial score from SignalGenerator")
+    strike_price: Optional[float] = Field(None)
+    primary_metric_value: Optional[Any] = Field(None, description="Value of the primary metric triggering signal")
+    supporting_metrics_summary: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    market_regime_at_signal: Optional[str] = Field(None)
+    ticker_context_at_signal: Optional[Dict[str, Any]] = Field(default_factory=dict)
+
+class TickerContextOutputV2_5(EOTSBaseModel):
+    symbol: str = Field(...)
+    current_datetime_utc: datetime
+    is_spy_spx: bool = Field(default=False)
+    expiration_context: Dict[str, Any] = Field(default_factory=dict)
+    intraday_session_context: Dict[str, Any] = Field(default_factory=dict)
+    behavioral_patterns_active: Dict[str, Any] = Field(default_factory=dict)
+    liquidity_profile: Dict[str, Any] = Field(default_factory=dict)
+    volatility_character: Dict[str, Any] = Field(default_factory=dict)
+    event_context: Dict[str, Any] = Field(default_factory=dict)
+
+class ATIFContextInputV2_5(EOTSBaseModel):
+    symbol: str = Field(...)
+    current_time_utc: datetime
+    current_market_regime: str = Field(...)
+    ticker_context_dict: TickerContextOutputV2_5 # type: ignore
+    scored_signals: Dict[str, List[SignalPayloadV2_5]] = Field(default_factory=dict)
+    key_levels: List[KeyLevelV2_5] = Field(default_factory=list)
+    underlying_data_enriched: 'UnderlyingDataEnrichedV2_5' # Forward ref as string
+
+class ATIFTradeIdeaDirectiveV2_5(EOTSBaseModel):
+    trade_idea_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    symbol: str = Field(...)
+    timestamp_generated: datetime = Field(default_factory=datetime.now)
+    situational_assessment_profile: Dict[str, Any] = Field(default_factory=dict)
+    final_conviction_score: float = Field(...)
+    trade_bias: str = Field(..., description="Bullish, Bearish, NeutralVol, etc.")
+    selected_strategy_type: str = Field(...)
+    target_dte_min: Optional[int] = Field(None)
+    target_dte_max: Optional[int] = Field(None)
+    target_delta_long_leg_min: Optional[float] = Field(None)
+    target_delta_long_leg_max: Optional[float] = Field(None)
+    target_delta_short_leg_min: Optional[float] = Field(None)
+    target_delta_short_leg_max: Optional[float] = Field(None)
+    supportive_rationale_summary: Optional[str] = Field(None)
+
+class OptionLegDefinitionV2_5(EOTSBaseModel):
+    option_symbol_selected: str = Field(..., description="Full OCC symbol")
+    strike: float
+    expiration_date: date
+    option_type: str = Field(..., description="call or put")
+    action: str = Field(..., description="BUY_TO_OPEN, SELL_TO_OPEN, etc.")
+    quantity: int = Field(default=1)
+    entry_price_leg_estimate_bid: Optional[float] = Field(None)
+    entry_price_leg_estimate_ask: Optional[float] = Field(None)
+    entry_price_leg_estimate_mid: Optional[float] = Field(None)
+
+class TradeRecommendationV2_5(EOTSBaseModel):
+    recommendation_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    trade_idea_id_ref: str = Field(..., description="Reference to ATIF idea")
+    symbol: str = Field(...)
+    timestamp_parameterized: datetime = Field(default_factory=datetime.now)
+    strategy_type: str = Field(...)
+    trade_bias: str = Field(...)
+    legs: List[OptionLegDefinitionV2_5] = Field(default_factory=list)
+    calculated_entry_price_net: Optional[float] = Field(None)
+    stop_loss_underlying_price: Optional[float] = Field(None)
+    stop_loss_option_premium_net: Optional[float] = Field(None)
+    target_1_underlying_price: Optional[float] = Field(None)
+    target_1_option_premium_net: Optional[float] = Field(None)
+    target_2_underlying_price: Optional[float] = Field(None)
+    target_2_option_premium_net: Optional[float] = Field(None)
+    target_3_underlying_price: Optional[float] = Field(None)
+    target_3_option_premium_net: Optional[float] = Field(None)
+    target_rationale: Optional[str] = Field(None)
+    initial_risk_reward_ratio_t1: Optional[float] = Field(None)
+    atif_conviction_score_at_generation: float = Field(...)
+    market_regime_at_generation: str = Field(...)
+    key_metrics_at_generation: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    status: str = Field(default="PENDING_NEW", description="Lifecycle status")
+    status_update_reason: Optional[str] = Field(None)
+    entry_timestamp_actual: Optional[datetime] = Field(None)
+    exit_timestamp_actual: Optional[datetime] = Field(None)
+    pnl_actual: Optional[float] = Field(None)
+    current_stop_loss_underlying: Optional[float] = Field(None)
+    current_target_1_underlying: Optional[float] = Field(None)
+
+class FinalAnalysisBundleV2_5(EOTSBaseModel):
+    symbol: str = Field(...)
+    orchestration_timestamp_utc: datetime
+    status: str # From ProcessedDataBundle
+    error_message: Optional[str] = Field(None)
+    underlying_data_enriched: 'UnderlyingDataEnrichedV2_5' # Forward ref
+    options_contracts_processed: List['OptionContractProcessedV2_5'] = Field(default_factory=list) # Forward ref
+    strike_level_metrics_processed: List[StrikeLevelMetricsV2_5] = Field(default_factory=list)
+    key_levels: List[KeyLevelV2_5] = Field(default_factory=list)
+    signals_output: Dict[str, List[SignalPayloadV2_5]] = Field(default_factory=dict)
+    active_recommendations: List[TradeRecommendationV2_5] = Field(default_factory=list)
+
+if __name__ == '__main__':
+    print("EOTS V2.5 Schemas file (with analytical models) loaded and self-tested.")
+    kl_data = {"level_price": 500, "level_type": "Resistance", "conviction_score": 3.5, "contributing_metrics": ["NVP", "A_MSPI"]}
+    kl = KeyLevelV2_5(**kl_data)
+    print(f"KeyLevel: Price {kl.level_price}, Type: {kl.level_type}, Score: {kl.conviction_score}")
+
+# Resolve forward references if Python version < 3.9 or models are complexly ordered
+# Pydantic v2 typically handles forward references automatically with type hints.
+# However, explicit update_forward_refs() can be added if needed after all models are defined.
+# Example:
+# ATIFContextInputV2_5.model_rebuild()
+# FinalAnalysisBundleV2_5.model_rebuild()
+# ProcessedDataBundleV2_5.model_rebuild()

@@ -1,355 +1,199 @@
+# elite_options_system_v2_5/utils/config_manager_v2_5.py
+
 import json
 import os
-from jsonschema import validate, RefResolver, Draft7Validator
+import logging
 from pathlib import Path
+from typing import Any, Dict, Optional
+
+try:
+    from ..data_models.eots_schemas_v2_5 import EOTSConfigV2_5
+    from pydantic import ValidationError as PydanticValidationError
+    PYDANTIC_SCHEMAS_AVAILABLE = True
+except ImportError as e: # Catching the specific error
+    # Fallback for PYDANTIC_SCHEMAS_AVAILABLE, and define dummy classes
+    PYDANTIC_SCHEMAS_AVAILABLE = False
+    class EOTSConfigV2_5: # type: ignore
+        # Add dummy attributes that might be checked by `hasattr` if absolutely necessary
+        # Or ensure no code relies on attributes of a non-existent model.
+        pass
+    class PydanticValidationError(Exception): # type: ignore
+        pass
+    # Log this specific import error clearly
+    # Cannot use self.logger here as it's not initialized yet.
+    # Use a temporary logger or print for this critical bootstrap phase.
+    temp_logger = logging.getLogger(f"{__name__}_bootstrap_error")
+    temp_logger.critical(f"CRITICAL IMPORT ERROR: EOTSConfigV2_5 or PydanticValidationError from pydantic could not be imported. Pydantic config parsing will be SKIPPED. Error: {e}")
+
+
+from jsonschema import validate, RefResolver, Draft7Validator # Keep for fallback
+
+logger = logging.getLogger(__name__)
 
 class ConfigManagerV2_5:
-    def __init__(self, config_path='config_v2_5.json', schema_path='config.schema.v2.5.json', project_root_marker='README.md'):
+    def __init__(self,
+                 config_filename: str = 'config_v2_5.json',
+                 schema_filename: str = 'config.schema.v2.5.json',
+                 project_root_marker: str = 'README.md'):
+
         self.project_root = self._find_project_root(start_path=Path(__file__).parent, marker=project_root_marker)
         if not self.project_root:
-            # Fallback if marker not found, assuming script is run from within project structure
-            # Adjust this fallback as necessary for your specific project structure
-            self.project_root = Path(__file__).resolve().parent.parent
-            print(f"Warning: Project root marker '{project_root_marker}' not found. Using fallback root: {self.project_root}")
-            # Attempt to find it from the elite_options_system_v2_5 directory if possible
-            if 'elite_options_system_v2_5' in str(Path(__file__)):
-                 self.project_root = Path(str(Path(__file__).resolve()).split('elite_options_system_v2_5')[0])
-                 print(f"Adjusted project root based on 'elite_options_system_v2_5' in path: {self.project_root}")
+            self.project_root = Path.cwd()
+            logger.warning(f"Project root marker '{project_root_marker}' not found. Using CWD: {self.project_root} for ConfigManagerV2_5.")
+
+        # Correctly use project_root for config/schema paths
+        # Assuming elite_options_system_v2_5 is a direct child of project_root
+        self.config_file_path = self.project_root / 'elite_options_system_v2_5' / config_filename
+        self.schema_file_path = self.project_root / 'elite_options_system_v2_5' / schema_filename
+
+        self.raw_config: Dict[str, Any] = {}
+        self.eots_config_model: Optional[EOTSConfigV2_5] = None
+
+        self._load_and_parse_config()
+
+        if not self.eots_config_model and self.raw_config:
+            logger.warning("Pydantic model parsing failed or was skipped. Attempting jsonschema validation on raw config as a fallback.")
+            self._validate_config_with_jsonschema()
+        elif not self.raw_config:
+             logger.error("No raw configuration was loaded. Cannot perform Pydantic parsing or JSONSchema validation.")
 
 
-        self.config_file_path = self.project_root / 'elite_options_system_v2_5' / config_path
-        self.schema_file_path = self.project_root / 'elite_options_system_v2_5' / schema_path
-
-        self.config = self._load_config()
-        self._validate_config()
-
-    def _find_project_root(self, start_path: Path, marker: str) -> Path | None:
+    def _find_project_root(self, start_path: Path, marker: str) -> Optional[Path]:
         current_path = start_path.resolve()
-        while current_path != current_path.parent: # Stop at the root of the filesystem
+        # Iterate up a limited number of times to avoid scanning the entire filesystem
+        for _ in range(len(current_path.parts) - 1): # Max depth based on parts
             if (current_path / marker).exists():
                 return current_path
-            if 'elite_options_system_v2_5' in str(current_path) and not (current_path.parent / marker).exists():
-                 # Specific EOTS case: if we are inside and can't find marker, go to parent of eots_v2_5
-                 # This is a heuristic for the specific project structure.
-                 parts = current_path.parts
-                 if 'elite_options_system_v2_5' in parts:
-                     eots_index = parts.index('elite_options_system_v2_5')
-                     if eots_index > 0:
-                         # project_root should be the parent of elite_options_system_v2_5
-                         # but if marker is not there, this logic is a fallback.
-                         # For now, let it return None if marker isn't found at higher levels.
-                         pass
+            if current_path == current_path.parent: # Reached filesystem root
+                break
             current_path = current_path.parent
-        # Check filesystem root as well if marker not found
+
+        # Final check if marker is in the last path checked (e.g. filesystem root)
         if (current_path / marker).exists():
             return current_path
+
+        logger.warning(f"Project root marker '{marker}' not found starting from {start_path}.")
         return None
 
-
-    def _load_config(self):
+    def _load_and_parse_config(self):
+        logger.info(f"Loading configuration from: {self.config_file_path}")
         try:
-            with open(self.config_file_path, 'r') as f:
-                return json.load(f)
+            with open(self.config_file_path, 'r') as f: self.raw_config = json.load(f)
+            logger.info("Raw configuration JSON loaded successfully.")
         except FileNotFoundError:
-            print(f"Error: Configuration file not found at {self.config_file_path}")
-            # Create a minimal default config if not found
-            # This should ideally be based on the schema's defaults
-            return {"system_settings": {"default_symbol": "SPY"}}
-        except json.JSONDecodeError:
-            raise ValueError(f"Error: Invalid JSON in configuration file: {self.config_file_path}")
+            logger.error(f"CRITICAL: Configuration file not found at {self.config_file_path}.")
+            self.raw_config = {}
+            return # Cannot proceed if file not found
+        except json.JSONDecodeError as e:
+            logger.error(f"CRITICAL: Invalid JSON in configuration file: {self.config_file_path}. Error: {e}")
+            self.raw_config = {}
+            return # Cannot proceed if JSON is invalid
 
-    def _validate_config(self):
+        if PYDANTIC_SCHEMAS_AVAILABLE and self.raw_config:
+            logger.info("Attempting Pydantic parsing of raw config into EOTSConfigV2_5...")
+            try:
+                self.eots_config_model = EOTSConfigV2_5(**self.raw_config)
+                logger.info("Config successfully parsed and validated by EOTSConfigV2_5 Pydantic model.")
+            except PydanticValidationError as e_pydantic:
+                logger.error(f"CRITICAL: Pydantic validation error for config {self.config_file_path}:\n{e_pydantic}")
+                self.eots_config_model = None
+            except Exception as e_other_parse:
+                logger.error(f"CRITICAL: Unexpected error parsing config with Pydantic: {e_other_parse}", exc_info=True)
+                self.eots_config_model = None
+        elif not self.raw_config: # This case is now handled by early returns above
+             pass
+        elif not PYDANTIC_SCHEMAS_AVAILABLE:
+             logger.warning("Pydantic EOTSConfigV2_5 model not available due to import errors. Skipping Pydantic parsing and validation.")
+
+
+    def _validate_config_with_jsonschema(self):
+        # This is a fallback if Pydantic parsing fails or is unavailable
+        if not self.raw_config:
+            logger.warning("JSONSchema validation: Raw config is empty, skipping.")
+            return
+
+        logger.info("Attempting JSONSchema validation as fallback/secondary check...")
         try:
-            with open(self.schema_file_path, 'r') as f:
-                schema = json.load(f)
+            with open(self.schema_file_path, 'r') as f: schema = json.load(f)
 
-            # For resolving local $ref in schema if any (e.g., to definitions)
-            # Assumes schema and references are in the same directory or use resolvable paths
-            resolver_path = 'file://' + str(self.schema_file_path.parent.resolve()) + '/'
-            resolver = RefResolver(base_uri=resolver_path, referrer=schema)
+            # Resolve local references like file:///path/to/schemas_dir/config.schema.json#definitions/subSchema
+            # Correct base_uri should point to the directory containing the schema file.
+            base_uri = 'file://' + str(self.schema_file_path.parent.resolve()) + '/'
+            resolver = RefResolver(base_uri=base_uri, referrer=schema)
 
             Draft7Validator.check_schema(schema) # Check if schema itself is valid
-            validate(instance=self.config, schema=schema, resolver=resolver)
-            print("Configuration is valid against the schema.")
+            validate(instance=self.raw_config, schema=schema, resolver=resolver)
+            logger.info("JSONSchema validation successful (raw_config against schema file).")
 
         except FileNotFoundError:
-            # Allow to proceed if schema is not found, but warn.
-            print(f"Warning: Schema file not found at {self.schema_file_path}. Configuration validation skipped.")
-        except Exception as e:
-            # Catch jsonschema.exceptions.SchemaError for invalid schema or other validation errors
-            raise ValueError(f"Configuration validation error: {e}")
+            logger.warning(f"JSONSchema file not found at {self.schema_file_path}. JSONSchema validation skipped.")
+        except Exception as e: # Catches jsonschema.exceptions.SchemaError, jsonschema.exceptions.ValidationError
+            logger.error(f"JSONSchema validation error: {e}")
 
 
-    def get_setting(self, *keys, symbol_context=None, default_value_to_return=None): # Added default_value_to_return
-        # Start with global config
-        current_level_config = self.config
+    def get_setting(self, *keys: str, symbol_context: Optional[str] = None, default_value_to_return: Any = None) -> Any:
+        # Kept as original for now, operating on self.raw_config
+        # Future: This method will be updated to primarily use self.eots_config_model
+        # and perhaps fallback to raw_config or provide a specific method for raw access.
+
+        config_source = self.raw_config
 
         # Try symbol-specific override first
-        if symbol_context and 'symbol_specific_overrides' in current_level_config:
-            symbol_overrides = current_level_config.get('symbol_specific_overrides', {}).get(symbol_context)
+        if symbol_context:
+            symbol_overrides = config_source.get("symbol_specific_overrides", {}).get(symbol_context)
             if symbol_overrides:
+                current_level = symbol_overrides
+                found_in_symbol = True
                 try:
-                    value = symbol_overrides
-                    for key in keys:
-                        value = value[key]
-                    # print(f"Retrieved '{'.'.join(keys)}' for symbol '{symbol_context}': {value}")
-                    return value
-                except KeyError:
-                    pass # Setting not found in symbol-specific, will try DEFAULT or global
+                    for key_part in keys: current_level = current_level[key_part]
+                    return current_level
+                except (KeyError, TypeError): found_in_symbol = False
 
-        # Try "DEFAULT" symbol profile if specific symbol override not found or parameter missing
-        if 'symbol_specific_overrides' in current_level_config:
-            default_symbol_profile = current_level_config.get('symbol_specific_overrides', {}).get("DEFAULT")
+            # Try "DEFAULT" symbol profile if specific symbol override not found or parameter missing
+            default_symbol_profile = config_source.get("symbol_specific_overrides", {}).get("DEFAULT")
             if default_symbol_profile:
+                current_level = default_symbol_profile
                 try:
-                    value = default_symbol_profile
-                    for key in keys:
-                        value = value[key]
-                    # print(f"Retrieved '{'.'.join(keys)}' from 'DEFAULT' symbol profile: {value}")
-                    return value
-                except KeyError:
-                    pass # Setting not found in DEFAULT profile, will try global
+                    for key_part in keys: current_level = current_level[key_part]
+                    return current_level
+                except (KeyError, TypeError): pass
 
         # Fallback to global setting
+        current_level = config_source
         try:
-            value = current_level_config
-            for key in keys:
-                value = value[key]
-            # print(f"Retrieved '{'.'.join(keys)}' from global settings: {value}")
-            return value
-        except KeyError:
-            # print(f"Warning: Setting '{'.'.join(keys)}' not found in global, DEFAULT, or symbol-specific ('{symbol_context}') configuration.")
-            # Optionally, you could raise an error or return a specific default value here.
-            # For now, consistent with schema providing defaults, this path might indicate missing mandatory field if schema not used properly
-            # or an optional field that is truly absent.
-            # Check if the schema has a default for this path - this is complex to implement here directly.
-            # The jsonschema validation with default filling happens at load time if schema is well-defined.
-            # So, if a key is missing here, it means it wasn't in config and had no schema default, or it's a typo.
-
-            # Try to retrieve default from schema (simplified example, real impl is harder)
-            # This is a basic attempt and might not cover all cases or nested defaults well.
-            # The `jsonschema.validate` with a `Draft7Validator` that fills defaults is the proper way,
-            # meaning `self.config` should already be populated with defaults if they existed in the schema.
-            temp_schema = self.config # This should be self.schema if loaded
-            current_schema_level = self.get_schema() # Assuming get_schema() returns the loaded schema
-
-            path_to_default = []
-            final_key_default = None
-
-            current_s_level = current_schema_level
-            try:
-                for key_part in keys:
-                    if 'properties' in current_s_level and key_part in current_s_level['properties']:
-                        current_s_level = current_s_level['properties'][key_part]
-                    elif 'patternProperties' in current_s_level: # Handle patternProperties if used for symbol overrides etc.
-                        # This is a simplified handling. Real patternProperties logic is more complex.
-                        # Assuming the key might match one of the patterns.
-                        found_in_pattern = False
-                        for pattern, schema_prop in current_s_level['patternProperties'].items():
-                            # This check is very basic, regex matching needed for real patterns
-                            if key_part in pattern: # Simplistic check
-                                current_s_level = schema_prop
-                                found_in_pattern = True
-                                break
-                        if not found_in_pattern:
-                             raise KeyError
-                    else:
-                        raise KeyError # Key not in schema properties path
-
-                if 'default' in current_s_level:
-                    # print(f"Retrieved schema default for '{'.'.join(keys)}': {current_s_level['default']}")
-                    return current_s_level['default']
-            except KeyError:
-                # print(f"No schema default found for '{'.'.join(keys)}'.")
-                pass
-
-            # If not found through any layer including schema, return the specified default
-            # print(f"Warning: Setting '{'.'.join(keys)}' not found. Returning provided default: {default_value_to_return}")
+            for key_part in keys: current_level = current_level[key_part]
+            return current_level
+        except (KeyError, TypeError):
+            # Schema default lookup was part of old get_setting, but Pydantic handles defaults at model load.
+            # If Pydantic model is not used, this raw get_setting won't automatically fill schema defaults.
+            # For now, just return the provided default_value_to_return.
             return default_value_to_return
 
+    def get_resolved_path_setting(self, *keys: str, symbol_context: Optional[str] = None, default_value_to_return: Optional[str] = None) -> Optional[Path]:
+        relative_path_str = self.get_setting(*keys, symbol_context=symbol_context, default_value_to_return=default_value_to_return)
 
-    def get_resolved_path_setting(self, *keys, symbol_context=None, default_value_to_return=None): # Added default
-        relative_path_str = self.get_setting(*keys, symbol_context=symbol_context, default_value_to_return=default_value_to_return)
-        if relative_path_str is None: # If get_setting returned None (its default or provided default)
-            return None # Propagate None if path string is None
-    def get_resolved_path_setting(self, *keys, symbol_context=None, default_value_to_return=None):
-        relative_path_str = self.get_setting(*keys, symbol_context=symbol_context, default_value_to_return=default_value_to_return)
-        if relative_path_str is None:
+        if relative_path_str is None or not isinstance(relative_path_str, str):
             return None
-        base_path_for_relative_paths = self.project_root / 'elite_options_system_v2_5'
-        return (base_path_for_relative_paths / relative_path_str).resolve()
 
-    def get_project_root(self) -> Path:
-        return self.project_root
+        if not self.project_root:
+            logger.error("Project root not determined. Cannot resolve path accurately. Returning relative path.")
+            return Path(relative_path_str)
 
-    def get_config_file_path(self) -> Path:
-        return self.config_file_path
+        # Paths in config are assumed to be relative to 'elite_options_system_v2_5' directory
+        # which is a child of the project_root.
+        base_path_for_config_paths = self.project_root / 'elite_options_system_v2_5'
 
-    def get_schema(self):
-        try:
-            with open(self.schema_file_path, 'r') as f:
-                return json.load(f)
-        except FileNotFoundError:
-            print(f"Warning: Schema file not found at {self.schema_file_path}")
-            return {} # Return empty schema if not found
-        except json.JSONDecodeError:
-            raise ValueError(f"Error: Invalid JSON in schema file: {self.schema_file_path}")
+        # Check if path is already absolute
+        path_obj = Path(relative_path_str)
+        if path_obj.is_absolute():
+            return path_obj.resolve()
+        else:
+            return (base_path_for_config_paths / relative_path_str).resolve()
 
-# Example usage:
-if __name__ == '__main__':
-    # This assumes config_v2_5.json and config.schema.v2.5.json are in the same directory as this script
-    # For proper usage, they should be in the root of the elite_options_system_v2_5 project folder.
-    # Adjust paths in ConfigManagerV2_5 constructor if running this example elsewhere.
-
-    # Create dummy config and schema for testing if they don't exist
-    # In a real scenario, these files would be properly defined.
-
-    # Determine project root for example (assuming this script is in utils)
-    example_project_root = Path(__file__).resolve().parent.parent.parent
-    example_config_dir = example_project_root / 'elite_options_system_v2_5'
-
-    example_config_dir.mkdir(parents=True, exist_ok=True)
-
-    example_config_path = example_config_dir / 'config_v2_5.json'
-    example_schema_path = example_config_dir / 'config.schema.v2.5.json'
-
-    if not example_config_path.exists():
-        with open(example_config_path, 'w') as f:
-            json.dump({
-                "system_settings": {"default_symbol": "SPY", "log_level": "INFO"},
-                "data_fetcher_settings": {
-                    "convexvalue_api_key": "YOUR_DUMMY_CV_KEY",
-                    "tradier_api_key": "YOUR_DUMMY_TRADIER_KEY"
-                },
-                "symbol_specific_overrides": {
-                    "SPY": {"log_level": "DEBUG"},
-                    "AAPL": {"data_fetcher_settings": {
-                        "convexvalue_api_key": "AAPL_DUMMY_CV_KEY",
-                        "tradier_api_key": "AAPL_DUMMY_TRADIER_KEY"
-                    }},
-                    "DEFAULT": {"log_level": "WARNING", "some_other_default": 123}
-                },
-                "paths": {"data_cache_root_dir": "data_cache"} # Ensure this matches later tests
-            }, f, indent=4)
-
-    if not example_schema_path.exists():
-        with open(example_schema_path, 'w') as f:
-            json.dump({
-                "type": "object",
-                "properties": {
-                    "system_settings": {
-                        "type": "object",
-                        "properties": {
-                            "default_symbol": {"type": "string", "default": "QQQ"},
-                            "log_level": {"type": "string", "enum": ["INFO", "DEBUG", "WARNING", "ERROR"], "default": "INFO"},
-                            "new_setting_with_default": {"type": "integer", "default": 100}
-                        },
-                        "required": ["default_symbol"]
-                    },
-                    "data_fetcher_settings": {
-                        "type": "object",
-                        "properties": {
-                            "convexvalue_api_key": {"type": "string"},
-                            "tradier_api_key": {"type": "string"}
-                        },
-                        "required": ["convexvalue_api_key", "tradier_api_key"]
-                    },
-                    "symbol_specific_overrides": {
-                        "type": "object",
-                        "patternProperties": {
-                            "^[A-Z]+$": {
-                                "type": "object",
-                                "properties": {
-                                    "log_level": {"type": "string", "enum": ["INFO", "DEBUG", "WARNING", "ERROR"]},
-                                    "data_fetcher_settings": {
-                                        "type": "object",
-                                        "properties": {
-                                            "convexvalue_api_key": {"type": "string"},
-                                            "tradier_api_key": {"type": "string"}
-                                        }
-                                        # Not requiring keys here, as overrides might be partial
-                                    },
-                                    "some_other_default": {"type": "integer"}
-                                }
-                            }
-                        }
-                    },
-                    "paths": {
-                        "type": "object",
-                        "properties": {
-                            "data_cache_root_dir": {"type": "string", "default": "cache_default"} # Ensure this matches
-                        }
-                    }
-                },
-                "required": ["system_settings", "data_fetcher_settings"] # Not requiring paths, as it might have all defaults
-            }, f, indent=4)
-
-    # When instantiating ConfigManagerV2_5, ensure it can find the project root correctly.
-    # If this script is in elite_options_system_v2_5/utils, project_root_marker='README.md'
-    # should be in the parent directory of elite_options_system_v2_5.
-    # We need to ensure a README.md exists at the intended project root for _find_project_root to work.
-    # For this example, let's assume the marker is in the parent of elite_options_system_v2_5
-    readme_marker_path = example_project_root / 'README.md'
-    if not readme_marker_path.exists():
-        with open(readme_marker_path, 'w') as f:
-            f.write("# Project README\n")
-
-    config_manager = ConfigManagerV2_5(project_root_marker='README.md') # This will use the files created above
-
-    print(f"Project Root: {config_manager.get_project_root()}")
-    print(f"Config File Path: {config_manager.get_config_file_path()}")
-    print(f"Schema File Path: {config_manager.schema_file_path}")
-
-    print("\n--- Testing get_setting ---")
-    print(f"Global log_level: {config_manager.get_setting('system_settings', 'log_level')}") # Should be INFO
-    print(f"SPY log_level: {config_manager.get_setting('system_settings', 'log_level', symbol_context='SPY')}") # Should be DEBUG
-    print(f"MSFT log_level (uses DEFAULT): {config_manager.get_setting('system_settings', 'log_level', symbol_context='MSFT')}") # Should be WARNING
-    print(f"AAPL tradier_api_key (fallback to global): {config_manager.get_setting('data_fetcher_settings', 'tradier_api_key', symbol_context='AAPL')}")
-    print(f"SPY tradier_api_key (fallback to global): {config_manager.get_setting('data_fetcher_settings', 'tradier_api_key', symbol_context='SPY')}")
-
-    # Test retrieving a setting that only exists in DEFAULT
-    print(f"MSFT some_other_default: {config_manager.get_setting('some_other_default', symbol_context='MSFT')}") # 123
-    # Test retrieving a setting with a schema default but not in config
-    print(f"Global new_setting_with_default: {config_manager.get_setting('system_settings', 'new_setting_with_default')}") # Should be 100 (from schema default)
-
-    print("\n--- Testing get_resolved_path_setting ---")
-    # This assumes 'data_cache' is relative to 'elite_options_system_v2_5'
-    expected_cache_path = (config_manager.get_project_root() / 'elite_options_system_v2_5' / 'data_cache').resolve()
-    print(f"Resolved data_cache_root_dir: {config_manager.get_resolved_path_setting('paths', 'data_cache_root_dir')}")
-    print(f"Expected data_cache_root_dir: {expected_cache_path}")
-
-    # Test missing key
-    try:
-        config_manager.get_setting('non_existent_key')
-    except KeyError as e:
-        print(f"Correctly caught missing key: {e}")
-
-    print("\n--- Testing schema defaults more explicitly ---")
-    # The validation process should fill defaults if schema is correctly set up.
-    # Let's check a value that should come from schema default directly from the loaded config
-    # if it wasn't present in the config file itself.
-    # This requires the jsonschema library to be used with default filling,
-    # which `validate` does if the schema defines defaults.
-    # The current _load_config doesn't explicitly fill defaults if the key is missing.
-    # The validation step is where defaults are normally applied by the library.
-    # Our get_setting has a fallback to check schema if key is missing after initial load.
-
-    # Re-create a minimal config file that's missing 'new_setting_with_default'
-    minimal_config_data = {
-        "system_settings": {"default_symbol": "SPY"}, # Missing log_level and new_setting_with_default
-        "data_fetcher_settings": {
-            "convexvalue_api_key": "YOUR_MINIMAL_CV_KEY",
-            "tradier_api_key": "YOUR_MINIMAL_TRADIER_KEY"
-        },
-         "paths": {} # missing data_cache_root_dir
-    }
-    with open(example_config_path, 'w') as f:
-        json.dump(minimal_config_data, f, indent=4)
-
-    print("Reloading ConfigManager with minimal config to test schema defaults...")
-    config_manager_reloaded = ConfigManagerV2_5(project_root_marker='README.md')
-    print(f"Reloaded log_level (schema default): {config_manager_reloaded.get_setting('system_settings', 'log_level')}") # INFO from schema
-    print(f"Reloaded new_setting_with_default (schema default): {config_manager_reloaded.get_setting('system_settings', 'new_setting_with_default')}") # 100 from schema
-    print(f"Reloaded paths.data_cache_root_dir (schema default): {config_manager_reloaded.get_setting('paths', 'data_cache_root_dir')}") # cache_default from schema
-
-    print("\nExample ConfigManagerV2_5 setup complete.")
+    def get_project_root(self) -> Optional[Path]: return self.project_root
+    def get_config_file_path(self) -> Path: return self.config_file_path
+    def get_eots_config_model(self) -> Optional[EOTSConfigV2_5]:
+        if not PYDANTIC_SCHEMAS_AVAILABLE:
+            logger.warning("Cannot return EOTSConfigV2_5 model: Pydantic schemas were not available or failed to import.")
+            return None
+        return self.eots_config_model
